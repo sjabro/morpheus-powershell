@@ -1,4 +1,5 @@
 ﻿$FormatEnumerationLimit = 8
+Update-FormatData -AppendPath C:\Users\Bunge\OneDrive\Document\GitHub\morpheus-powershell\Module\Working\Morpheus.Format.ps1xml
 
 <#   NOTES  
   --[cmdletbinding(SupportsShouldProcess=$True)] adds '-WhatIf' functionality to items
@@ -427,14 +428,14 @@ Function Get-MDInstance {
     Try {
 
         $API = '/api/instances/'
-        $var = @()      
+        $var = @()    
 
         #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'Status', 'Plan'
+        #$defaultDisplaySet = 'ID', 'Name', 'Status', 'Plan'
 
         #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
+        #$defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
+        #$PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
 
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty instance* 
@@ -442,8 +443,8 @@ Function Get-MDInstance {
         $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        $var.pstypenames.Insert(0,'Morpheus.Instance.Information')
+        #$var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
 
         return $var
         }
@@ -747,7 +748,7 @@ Function Get-MDUser {
         $var = Check-Flags -var $var -Username $Username -ID $ID -AccountID $AccountID -DisplayName $DisplayName
     
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Morpheus.Instance.')
+        $var.PSObject.TypeNames.Insert(0,'Morpheus.Accounts.Users')
         $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
 
         return $var
