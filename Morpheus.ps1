@@ -296,6 +296,7 @@ Function Get-MDBlueprint {
         $API = '/api/app-templates/'
         $var = @()
 
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty appTemplates 
 
@@ -319,22 +320,12 @@ Function Get-MDBuild {
     Param (
         )
 
-    $API = '/api/setup/check/'
-    $var = @()
+        $API = '/api/setup/check/'
+        $var = @()
 
-    #Configure a default display set
-    $defaultDisplaySet = 'buildVersion', 'setupNeeded', 'success'
-
-    #Create the default property display set
-    $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-    $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
-    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-    ConvertFrom-Json
-
-    #Give this object a unique typename
-    $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-    $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json
 
     return $var
 
@@ -351,21 +342,16 @@ Function Get-MDCloud {
         $API = '/api/zones/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'Location', 'Status'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty zone* 
 
         $var = Check-Flags -var $var -Name $Name -ID $ID
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Cloud')
+            }
 
         return $var
         }

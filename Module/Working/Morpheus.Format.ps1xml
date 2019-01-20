@@ -15,7 +15,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
-							<Width>20</Width>
+							<Width>30</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -25,7 +25,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Plan</Label>
-							<Width>30</Width>
+							<Width>40</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -85,7 +85,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
-							<Width>20</Width>
+							<Width>30</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -141,7 +141,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
-							<Width>20</Width>
+							<Width>30</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -161,7 +161,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Tiers</Label>
-							<Width>50</Width>
+							<!--<AutoSize/>-->
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 					</TableHeaders>
@@ -207,7 +207,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
-							<Width>20</Width>
+							<Width>30</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -217,7 +217,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Description</Label>
-							<Width>50</Width>
+							<!--<AutoSize/>-->
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 					</TableHeaders>
@@ -235,6 +235,64 @@
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>Description</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Infrastructure.Cloud</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>5</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Location</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Server Count</Label>
+							<Width>8</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Groups</Label>
+							<!--<AutoSize/>-->
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Location</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>serverCount</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.groups.name
+									</ScriptBlock>
 								</TableColumnItem>
 							</TableColumnItems>
 						</TableRowEntry>
