@@ -1,4 +1,6 @@
-﻿$FormatEnumerationLimit = 8
+﻿#Set Environment Vars
+$FormatEnumerationLimit = 8
+
 Update-FormatData -AppendPath C:\Users\Bunge\OneDrive\Document\GitHub\morpheus-powershell\Module\Working\Morpheus.Format.ps1xml
 
 <#   NOTES  
@@ -23,6 +25,7 @@ Function Check-Flags {
         [AllowEmptyString()]$ItemKey,
         [AllowEmptyString()]$InstanceID,
         [AllowEmptyString()]$Name,
+        [AllowEmptyString()]$ProvisionType,
         [AllowEmptyString()]$RoleType,
         [AllowEmptyString()]$Task,
         [AllowEmptyString()]$Username,
@@ -66,6 +69,10 @@ Function Check-Flags {
         $var = $var | Where-Object { $_.Group.id -like $GroupId }
         }
 
+    If ($Groups) {
+        $var = $var | Where-Object { $_.groups.name -like $Groups }
+        }
+
     If ($DisplayName){
         $var = $var | where displayName -like $DisplayName
         }
@@ -88,6 +95,10 @@ Function Check-Flags {
 
     If ($OS) {
         $var = $var | Where-Object { $_.serverOs.name -like $OS }
+        }
+
+    If ($ProvisionType) {
+        $var = $var | Where-Object { $_.provisionType.code -like $ProvisionType }
         }
     
     If ($RoleType) {
@@ -334,7 +345,8 @@ Function Get-MDBuild {
 Function Get-MDCloud {
     Param (
         $ID,
-        $Name
+        $Name,
+        $Group
         )
 
     Try {
@@ -346,7 +358,10 @@ Function Get-MDCloud {
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty zone* 
 
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        $Groups = $Group
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Groups $Groups
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -409,10 +424,7 @@ Function Get-MDHistory {
         #Configure a default display set
         $defaultDisplaySet = 'instanceId', 'processType', 'status'
 
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty process* 
 
@@ -466,7 +478,8 @@ Function Get-MDInstance {
 Function Get-MDPlan {
     Param (
         $Name,
-        $ID
+        $ID,
+        $ProvisionType
         )
 
     Try {
@@ -477,18 +490,17 @@ Function Get-MDPlan {
         #Configure a default display set
         $defaultDisplaySet = 'ID', 'Name', 'provisionType'
 
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty servicePlan* 
-
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -ProvisionType $ProvisionType
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Plan')
+            }
 
         return $var
 

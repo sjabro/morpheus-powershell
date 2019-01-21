@@ -299,5 +299,47 @@
 					</TableRowEntries>
 				</TableControl>
 		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Instance.Plan</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>5</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>50</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Cloud Type</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.provisionType.code
+									</ScriptBlock>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
 	</ViewDefinitions>
 </Configuration>
