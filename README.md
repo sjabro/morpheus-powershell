@@ -4,7 +4,7 @@ Installation:
 (Typically 'C:\Program Files\WindowsPowerShell\Modules')
 		
 Usage:
-"Connect-Morpheus [-URL] <String> [-Username] <String> [[-Password] <Object>] [<CommonParameters>]"
+"Connect-Morpheus [-URL] <String> [-Username] <String> [-Password] <String>"
 	
 Additional Commandlets:
 "Get-Command -Module Morpheus*"
