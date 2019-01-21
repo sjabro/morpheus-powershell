@@ -30,6 +30,7 @@ Function Check-Flags {
         [AllowEmptyString()]$ProvisionType,
         [AllowEmptyString()]$RoleType,
         [AllowEmptyString()]$Task,
+        [AllowEmptyString()]$TaskType,
         [AllowEmptyString()]$Username,
         [AllowEmptyString()]$Zone,
         [AllowEmptyString()]$ZoneId
@@ -117,6 +118,10 @@ Function Check-Flags {
 
     If ($Task) {
         $var = $var | where tasks -like $Task
+        }
+
+    If ($TaskType) {
+        $var = $var | Where-Object { $_.taskType.name -like $TaskType }
         }
 
     If ($Username) {
@@ -618,8 +623,7 @@ Function Get-MDServer {
         $Name,
         $Cloud,
         $CloudId,
-        $OS,
-        $Status
+        $OS
         )
 
     Try {
@@ -650,7 +654,8 @@ Function Get-MDServer {
 Function Get-MDTask {
     Param (
         $ID,
-        $Name
+        $Name,
+        $TaskType
         )
 
         $API = '/api/tasks/'
@@ -661,7 +666,7 @@ Function Get-MDTask {
         ConvertFrom-Json | select -ExpandProperty task* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
         
         #Give this object a unique typename
         Foreach ($Object in $var) {
