@@ -19,12 +19,14 @@ Function Check-Flags {
         [AllowEmptyString()]$CloudId,
         [AllowEmptyString()]$Currency,
         [AllowEmptyString()]$DisplayName,
+        [AllowEmptyString()]$Enabled,
         [AllowEmptyString()]$Group,
         [AllowEmptyString()]$GroupId,
         [AllowEmptyString()]$ID,
         [AllowEmptyString()]$ItemKey,
         [AllowEmptyString()]$InstanceID,
         [AllowEmptyString()]$Name,
+        [AllowEmptyString()]$PolicyType,
         [AllowEmptyString()]$ProvisionType,
         [AllowEmptyString()]$RoleType,
         [AllowEmptyString()]$Task,
@@ -61,6 +63,10 @@ Function Check-Flags {
         $var = $var | where currency -like $Currency
         }
 
+    If ($Enabled){
+        $var = $var | where enabled -like $Enabled
+        }
+
     If ($Group) {
         $var = $var | Where-Object { $_.Group.name -like $Group }
         }
@@ -95,6 +101,10 @@ Function Check-Flags {
 
     If ($OS) {
         $var = $var | Where-Object { $_.serverOs.name -like $OS }
+        }
+
+    If ($PolicyType) {
+        $var = $var | Where-Object { $_.policyType.name -like $PolicyType }
         }
 
     If ($ProvisionType) {
@@ -207,7 +217,7 @@ Function Get-MDAccount {
 
         #Give this object a unique typename
         Foreach ($Object in $var) { 
-        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Account.Information')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.Tenants')
             }
         
         $Account = $var
@@ -241,7 +251,7 @@ Function Get-MDApp {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Application')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Apps')
             }
 
         return $var
@@ -283,7 +293,7 @@ Function Get-MDBilling {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Account.Billing')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Account.Billing')
             }
 
         return $var
@@ -316,7 +326,7 @@ Function Get-MDBlueprint {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Blueprint')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.BluePrints')
             }
 
         return $var
@@ -365,7 +375,7 @@ Function Get-MDCloud {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Cloud')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clouds')
             }
 
         return $var
@@ -464,7 +474,7 @@ Function Get-MDInstance {
         $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
 
         Foreach ($Object in $var) { 
-        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Information')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances')
             }
 
         return $var
@@ -499,7 +509,7 @@ Function Get-MDPlan {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Plan')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.PlansAndPricing.Plan')
             }
 
         return $var
@@ -513,28 +523,26 @@ Function Get-MDPlan {
 Function Get-MDPolicy {
     Param (
         $ID,
-        $Name
+        $Name,
+        $PolicyType,
+        $Enabled
         )
 
     Try {
         $API = '/api/policies/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'policyType'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty policies 
 
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled -PolicyType $PolicyType
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.Policies')
+            }
 
         return $var
         }
@@ -546,27 +554,24 @@ Function Get-MDPolicy {
 Function Get-MDPowerSchedule {
     Param (
         $ID,
-        $Name
+        $Name,
+        $Enabled
         )
     Try {
         $API = '/api/power-schedules/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'enabled', 'totalMonthlyHoursSaved'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty schedule* 
 
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Operations.Scheduling.PowerSchedule')
+            }
 
         return $var
         }
@@ -587,21 +592,17 @@ Function Get-MDRole {
         $API = '/api/roles/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'authority', 'roleType'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty role* 
 
+        #User flag lookup
         $var = Check-Flags -var $var -Authority $Authority -ID $ID -RoleType $RoleType
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.Roles')
+            }
 
         return $var
 
@@ -617,7 +618,8 @@ Function Get-MDServer {
         $Name,
         $Cloud,
         $CloudId,
-        $OS
+        $OS,
+        $Status
         )
 
     Try {
@@ -625,21 +627,17 @@ Function Get-MDServer {
         $API = '/api/servers/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'internalIp', 'plan', 'sshUsername'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty server* 
 
+        #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID -Zone $Cloud -ZoneId $CloudId -OS $OS
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+            }
         
         return $var
 
@@ -655,24 +653,20 @@ Function Get-MDTask {
         $Name
         )
 
-    $API = '/api/tasks/'
-    $var = @()
+        $API = '/api/tasks/'
+        $var = @()
 
-    #Configure a default display set
-    $defaultDisplaySet = 'ID', 'Name', 'taskType'
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | select -ExpandProperty task* 
 
-    #Create the default property display set
-    $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-    $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
-    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-    ConvertFrom-Json | select -ExpandProperty task* 
-
-    $var = Check-Flags -var $var -Name $Name -ID $ID
-
-    #Give this object a unique typename
-    $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-    $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID
+        
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
+            }
 
     return $var
 

@@ -4,7 +4,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Instance.Information</TypeName>
+					<TypeName>Morpheus.Provisioning.Instances</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -74,7 +74,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Account.Information</TypeName>
+					<TypeName>Morpheus.Administration.Tenants</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -130,7 +130,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Instance.Application</TypeName>
+					<TypeName>Morpheus.Instance.Apps</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -196,7 +196,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Instance.BluePrint</TypeName>
+					<TypeName>Morpheus.Provisioning.BluePrints</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -244,7 +244,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Infrastructure.Cloud</TypeName>
+					<TypeName>Morpheus.Infrastructure.Clouds</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -302,7 +302,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Instance.Plan</TypeName>
+					<TypeName>Morpheus.Administration.PlansAndPricing.Plan</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -317,7 +317,7 @@
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
-							<Label>Cloud Type</Label>
+							<Label>Provision Type</Label>
 							<Width>30</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
@@ -334,6 +334,294 @@
 								<TableColumnItem>
 									<ScriptBlock>
 										$_.provisionType.code
+									</ScriptBlock>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Administration.Policies</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>5</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Policy Type</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Enabled</Label>
+							<Width>8</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Description</Label>
+							<!--<AutoSize/>-->
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.policyType.name
+									</ScriptBlock>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Enabled</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Description</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Operations.Scheduling.PowerSchedule</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>5</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Schedule Type</Label>
+							<Width>10</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Hours Saved</Label>
+							<Width>8</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Enabled</Label>
+							<Width>8</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Description</Label>
+							<!--<AutoSize/>-->
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>scheduleType</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>totalMonthlyHoursSaved</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Enabled</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Description</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Administration.Roles</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>5</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Role Type</Label>
+							<Width>10</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Multitenant</Label>
+							<Width>12</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Description</Label>
+							<!--<AutoSize/>-->
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>authority</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>roleType</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>multitenant</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Description</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Instances.Servers</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>5</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Internal IP</Label>
+							<Width>16</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>External IP</Label>
+							<Width>16</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>OS</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Cloud</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>internalIp</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>externalIp</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.serverOs.name
+									</ScriptBlock>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.zone.name
+									</ScriptBlock>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Automation.Tasks</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>5</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Task Type</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.taskType.name
 									</ScriptBlock>
 								</TableColumnItem>
 							</TableColumnItems>
