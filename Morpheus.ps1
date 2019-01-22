@@ -11,6 +11,7 @@ Update-FormatData -AppendPath C:\Users\Bunge\OneDrive\Document\GitHub\morpheus-p
 Function Check-Flags {
     Param (
         $var,
+        [AllowEmptyString()]$Account,
         [AllowEmptyString()]$AccountID,
         [AllowEmptyString()]$Active,
         [AllowEmptyString()]$Authority,
@@ -35,6 +36,10 @@ Function Check-Flags {
         [AllowEmptyString()]$Zone,
         [AllowEmptyString()]$ZoneId
         )    
+
+    If ($Account) {
+        $var = $var | Where-Object { $_.account.name -like $Account }
+        }
 
     If ($AccountID){
         $var = $var | where accountid -like $AccountID
@@ -688,21 +693,17 @@ Function Get-MDTaskType {
         $API = '/api/task-types/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'code'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty task* 
 
+        #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks.Types')
+            }
 
         return $var
 
@@ -714,6 +715,7 @@ Function Get-MDTaskType {
 
 Function Get-MDUser {
     Param (
+        $Account,
         $AccountID,
         $ID,
         $Username,
@@ -723,28 +725,24 @@ Function Get-MDUser {
     Try {
 
         $var = @()
+      
+        $Accounts = Get-MDAccount | select -ExpandProperty id
 
-        #Configure a default display set
-        $defaultDisplaySet = 'id', 'accountId', 'displayName', 'username'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
-        $Accounts = Get-Account | select -ExpandProperty id
-
-        foreach ($account in $accounts) {
-            $API = "/api/accounts/$Account/users"
+        #User Lookup
+        foreach ($a in $accounts) {
+            $API = "/api/accounts/$a/users"
             $obj = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
             ConvertFrom-Json | select -ExpandProperty user* 
             $var += $obj
             }
-
-        $var = Check-Flags -var $var -Username $Username -ID $ID -AccountID $AccountID -DisplayName $DisplayName
+        
+        #User flag lookup
+        $var = Check-Flags -var $var -Username $Username -ID $ID -AccountID $AccountID -DisplayName $DisplayName -Account $Account
     
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Morpheus.Accounts.Users')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.Users')
+            }
 
         return $var
 
