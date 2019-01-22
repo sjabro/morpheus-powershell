@@ -18,5 +18,5 @@ Get-Command -Module Morpheus*
 
 ## Contributions
 
-This is an early release of powershell Commandlets that map to the Morpheus API. For More Information of the Morpheus API Visit [Morpheus Data](https://www.morpheusdata.com)
+This is an early release of Powershell Commandlets that map to the Morpheus API and third party contributions are most welcome. For More Information of the Morpheus API Visit [Morpheus Data](https://www.morpheusdata.com)
 
