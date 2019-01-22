@@ -1,3 +1,5 @@
+The Morpheus API is a very robust API that provides a lot of functionality for both self-service provisioning across many clouds as well as visibility into existing infrastructure. This provides a set of cmdlets for Powershell to make it easier to access Data Objects in a familiar manner for PowerShell users.
+
 ## Installation
 
 1. Copy contents from the latest release under "Modules"
