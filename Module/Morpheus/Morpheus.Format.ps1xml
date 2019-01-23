@@ -10,7 +10,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -80,7 +80,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -136,7 +136,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -202,7 +202,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -250,7 +250,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -308,7 +308,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -350,7 +350,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -408,7 +408,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -472,7 +472,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -528,7 +528,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -596,7 +596,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -670,7 +670,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -705,6 +705,102 @@
 									<ScriptBlock>
 										$_.account.name
 									</ScriptBlock>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.VirtualImages</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>50</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Image Type</Label>
+							<Width>15</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Uploaded</Label>
+							<Width>10</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>imageType</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>userUploaded</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Automation.Workflow</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Tasks</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Description</Label>
+							<Width>50</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>tasks</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Description</PropertyName>
 								</TableColumnItem>
 							</TableColumnItems>
 						</TableRowEntry>

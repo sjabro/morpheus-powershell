@@ -1,7 +1,7 @@
 ﻿#Set Environment Vars
 $FormatEnumerationLimit = 8
 
-Update-FormatData -AppendPath C:\Users\Bunge\OneDrive\Document\GitHub\morpheus-powershell\Module\Working\Morpheus.Format.ps1xml
+Update-FormatData -AppendPath C:\Users\Bunge\OneDrive\Document\GitHub\morpheus-powershell\Module\Morpheus\Morpheus.Format.ps1xml
 
 <#   NOTES  
   --[cmdletbinding(SupportsShouldProcess=$True)] adds '-WhatIf' functionality to items
@@ -25,6 +25,7 @@ Function Check-Flags {
         [AllowEmptyString()]$GroupId,
         [AllowEmptyString()]$ID,
         [AllowEmptyString()]$ItemKey,
+        [AllowEmptyString()]$ImageType,
         [AllowEmptyString()]$InstanceID,
         [AllowEmptyString()]$Name,
         [AllowEmptyString()]$PolicyType,
@@ -32,6 +33,7 @@ Function Check-Flags {
         [AllowEmptyString()]$RoleType,
         [AllowEmptyString()]$Task,
         [AllowEmptyString()]$TaskType,
+        [AllowEmptyString()]$Uploaded,
         [AllowEmptyString()]$Username,
         [AllowEmptyString()]$Zone,
         [AllowEmptyString()]$ZoneId
@@ -97,6 +99,10 @@ Function Check-Flags {
         $var = $var | where itemKey -like $ItemKey
         }
 
+    If ($ImageType) {
+        $var = $var | where imageType -like $ImageType
+        }
+
     If ($InstanceID) {
         $var = $var | where instanceId -like $InstanceID
         }
@@ -127,6 +133,10 @@ Function Check-Flags {
 
     If ($TaskType) {
         $var = $var | Where-Object { $_.taskType.name -like $TaskType }
+        }
+
+    If ($Uploaded) {
+        $var = $var | where userUploaded -like $Uploaded
         }
 
     If ($Username) {
@@ -199,7 +209,7 @@ Function Connect-Morpheus {
         }
     Finally {
         if ($Error.Count -le 0) {
-            Write-Host "Successfully connected to $URL
+            Write-Host "Successfully connected to $URL.
 Use `"Get-Command -Module Morpheus`" to discover available commands." -ForegroundColor Yellow
             }
         }    
@@ -755,7 +765,9 @@ Function Get-MDUser {
 Function Get-MDVirtualImage {
     Param (
         $ID,
-        $Name
+        $Name,
+        $ImageType,
+        $Uploaded
         )
 
     Try {
@@ -763,21 +775,17 @@ Function Get-MDVirtualImage {
         $API = '/api/virtual-images/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'imageType'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #User Lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty virtualImage* 
 
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -ImageType $ImageType -Uploaded $Uploaded
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.VirtualImages')
+            }
 
         return $var
 
@@ -800,21 +808,17 @@ Function Get-MDWorkflow {
         $API = '/api/task-sets/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'tasks', 'lastUpdated'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #User Lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty task* 
 
+        #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID -Task $Task
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Workflow')
+            }
 
         return $var
 
