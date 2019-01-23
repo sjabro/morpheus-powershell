@@ -31,6 +31,7 @@ Function Check-Flags {
         [AllowEmptyString()]$PolicyType,
         [AllowEmptyString()]$ProvisionType,
         [AllowEmptyString()]$RoleType,
+        [AllowEmptyString()]$ServerID,
         [AllowEmptyString()]$Task,
         [AllowEmptyString()]$TaskType,
         [AllowEmptyString()]$Uploaded,
@@ -125,6 +126,10 @@ Function Check-Flags {
     
     If ($RoleType) {
         $var = $var | where roleType -like $RoleType
+        }
+
+    If ($ServerID) {
+        $var = $var | where serverId -like $ServerID
         }
 
     If ($Task) {
@@ -417,21 +422,17 @@ Function Get-MDCypher {
         $API = '/api/cypher/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'itemKey', 'expireDate'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty cypher* 
 
+        #User flag lookup
         $var = Check-Flags -var $var -ItemKey $ItemKey -ID $ID
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Services.Cypher')
+            }
 
         return $var
 
@@ -443,7 +444,10 @@ Function Get-MDCypher {
 
 Function Get-MDHistory {  
     Param (
-        $InstanceID
+        $Instance,
+        $InstanceID,
+        $Server,
+        $ServerID
         )
 
     Try {
@@ -451,18 +455,25 @@ Function Get-MDHistory {
         $API = '/api/processes/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'instanceId', 'processType', 'status'
+        #Param Lookups
+        If ($Server) {
+            $ServerID = (Get-MDServer -Name $Server).id
+            }
+        If ($Instance) {
+            $InstanceID = (Get-MDInstance -Name $Instance).id
+            }
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty process* 
 
-        $var = Check-Flags -var $var -InstanceID $InstanceID
+        #User flag lookup
+        $var = Check-Flags -var $var -InstanceID $InstanceID -ServerID $ServerID
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.History')
+            }  
 
         return $var
 

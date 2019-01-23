@@ -302,6 +302,86 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
+					<TypeName>Morpheus.Services.Cypher</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Item Key</Label>
+							<Width>40</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Expiration Date</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>itemKey</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>expireDate</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Instances.History</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Status</Label>
+							<Width>15</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>containerName</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>status</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
 					<TypeName>Morpheus.Administration.PlansAndPricing.Plan</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
