@@ -130,7 +130,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Instance.Apps</TypeName>
+					<TypeName>Morpheus.Provisioning.Apps</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -186,6 +186,48 @@
 								<TableColumnItem>
 									<ScriptBlock>
 										$_.appTiers.tier.name
+									</ScriptBlock>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Operations.Billing</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>Account</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Cost</Label>
+							<Width>15</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										[math]::Round($_.cost,2)
 									</ScriptBlock>
 								</TableColumnItem>
 							</TableColumnItems>

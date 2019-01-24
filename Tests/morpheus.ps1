@@ -276,7 +276,7 @@ Function Get-MDApp {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Apps')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Apps')
             }
 
         return $var
@@ -303,11 +303,8 @@ Function Get-MDBilling {
 
     Try {
 
-        $API = '/api/billing/account/'
+        $API = '/api/billing/instances'
         $var = @()
-
-        #Configure a default display set
-        $defaultDisplaySet = 'accountId', 'Name', 'Price'
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
@@ -318,7 +315,7 @@ Function Get-MDBilling {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Account.Billing')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Operations.Billing')
             }
 
         return $var
