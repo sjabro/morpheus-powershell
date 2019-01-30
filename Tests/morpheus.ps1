@@ -303,8 +303,11 @@ Function Get-MDBilling {
 
     Try {
 
-        $API = '/api/billing/instances'
+        $API = '/api/billing/account/'
         $var = @()
+
+        #Configure a default display set
+        $defaultDisplaySet = 'accountId', 'Name', 'Price'
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
@@ -812,7 +815,7 @@ Function Get-MDWorkflow {
         )
     
     Try {
-
+    /
         $API = '/api/task-sets/'
         $var = @()
 

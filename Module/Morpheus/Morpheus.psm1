@@ -276,7 +276,7 @@ Function Get-MDApp {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Apps')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Apps')
             }
 
         return $var
@@ -318,7 +318,7 @@ Function Get-MDBilling {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Account.Billing')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Operations.Billing')
             }
 
         return $var
