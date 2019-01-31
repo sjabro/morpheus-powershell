@@ -1,0 +1,2 @@
+﻿$Cert = (Get-ChildItem -Path Cert:\CurrentUser\My\ -CodeSigningCert)
+Set-AuthenticodeSignature -FilePath 'C:\Users\Bunge\OneDrive\Document\Scripts\Modules\Morpheus - Copy\Morpheus.psm1' -Certificate $cert -TimestampServer http://timestamp.comodoca.com
