@@ -38,7 +38,7 @@ Function Connect-Morpheus {
         }
 
     Try {
-        $Error.Clear()
+        $Errors = $null
         ####  Morpheus Variables  ####
         $Body = "username=$Username&password=$PlainTextPassword"
         $AuthURL = "/oauth/token?grant_type=password&scope=write&client_id=morph-customer"
@@ -52,15 +52,15 @@ Function Connect-Morpheus {
         }
 
     Catch {
+        $Errors = $true
         Write-Host "Failed to authenticate credentials" -ForegroundColor Red
         }
     Finally {
-        if ($Error.Count -le 0) {
+        if (!$Errors) {
             Write-Host "Successfully connected to $URL.
 Use `"Get-Command -Module Morpheus`" to discover available commands." -ForegroundColor Yellow
             }
         }
-            
     }
 
 Export-ModuleMember -Variable URL,Header
