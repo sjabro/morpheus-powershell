@@ -9,7 +9,7 @@
         CompanyName       = 'Morpheus Data'
         Description       = 'Commandlets for API interaction with a Morpheus environment'
         PowerShellVersion = '4.0'
-        FunctionsToExport   = @('Connect-Morpheus')
+        FunctionsToExport = 'Connect-Morpheus'
         VariablesToExport = '*'
         ModuleVersion     = "$version"
     }
@@ -25,7 +25,7 @@
         CompanyName       = 'Morpheus Data'
         Description       = 'Commandlets for API interaction with a Morpheus environment'
         PowerShellVersion = '4.0'
-        FunctionsToExport   = @('Get-*')
+        FunctionsToExport = 'Get-*'
         VariablesToExport = '*'
         RequiredModules   = @(
             @{"ModuleName"="Morpheus.Connect";"ModuleVersion"="1.0"}      
@@ -66,7 +66,7 @@
         CompanyName       = 'Morpheus Data'
         Description       = 'Commandlets for API interaction with a Morpheus environment'
         PowerShellVersion = '4.0'
-        FunctionsToExport   = @('Remove-*')
+        FunctionsToExport = 'Remove-*'
         VariablesToExport = '*'
         RequiredModules   = @(
             @{"ModuleName"="Morpheus.Connect";"ModuleVersion"="$version"},

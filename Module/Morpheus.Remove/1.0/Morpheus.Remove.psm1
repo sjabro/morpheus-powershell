@@ -1,4 +1,4 @@
-﻿Function Check-Flags {
+﻿<#Function Check-Flags {
     Param (
         $var,
         [AllowEmptyString()]$Account,
@@ -149,6 +149,7 @@
     return $var
     }
 
+#>
 Function Remove-MDInstance {
     [cmdletbinding(
         SupportsShouldProcess=$True,

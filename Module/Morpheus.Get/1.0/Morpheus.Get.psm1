@@ -1,7 +1,7 @@
 ﻿#Set Environment Vars
 $FormatEnumerationLimit = 8
 
-Update-FormatData -AppendPath .\Morpheus.Ge.Format.ps1xml
+#Update-FormatData -AppendPath .\Morpheus.Get.Format.ps1xml
 
 <#   NOTES  
   --[cmdletbinding(SupportsShouldProcess=$True)] adds '-WhatIf' functionality to items
@@ -753,7 +753,7 @@ Function Get-MDWorkflow {
         )
     
     Try {
-    /
+    
         $API = '/api/task-sets/'
         $var = @()
 
