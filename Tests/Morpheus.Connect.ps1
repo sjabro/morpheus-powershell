@@ -1,4 +1,7 @@
-﻿Function Connect-Morpheus {
+﻿New-Variable -Name URL
+New-Variable -Name Header
+
+Function Connect-Morpheus {
     <#
     .Synopsis
        Makes connection to your Morpheus Appliance.
@@ -21,11 +24,11 @@
         $Password
         )
     if (!$URL.StartsWith('https://')) {
-        $Script:URL = ('https://' + $URL)
+        $URL = ('https://' + $URL)
         }
-        ELSE {
-        $Script:URL = $URL
-        }
+
+    $Script:URL = $URL
+
     if (-not($Password)) {
         $Password = Read-host 'Enter Password' -AsSecureString
         $PlainTextPassword= [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR( ($Password) ))
@@ -34,10 +37,8 @@
         $PlainTextPassword = $Password
         }
 
-    Export-ModuleMember -Variable $URL
-
     Try {
-        $Error.Clear()
+        $Errors = $null
         ####  Morpheus Variables  ####
         $Body = "username=$Username&password=$PlainTextPassword"
         $AuthURL = "/oauth/token?grant_type=password&scope=write&client_id=morph-customer"
@@ -51,12 +52,15 @@
         }
 
     Catch {
+        $Errors = $true
         Write-Host "Failed to authenticate credentials" -ForegroundColor Red
         }
     Finally {
-        if ($Error.Count -le 0) {
+        if (!$Errors) {
             Write-Host "Successfully connected to $URL.
 Use `"Get-Command -Module Morpheus`" to discover available commands." -ForegroundColor Yellow
             }
-        }    
+        }
     }
+
+Export-ModuleMember -Variable URL,Header

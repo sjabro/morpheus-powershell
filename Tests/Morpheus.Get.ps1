@@ -1,7 +1,7 @@
 ﻿#Set Environment Vars
 $FormatEnumerationLimit = 8
 
-Update-FormatData -AppendPath C:\Users\Bunge\OneDrive\Document\GitHub\morpheus-powershell\Module\Morpheus\Morpheus.Format.ps1xml
+Update-FormatData -AppendPath .\Morpheus.Ge.Format.ps1xml
 
 <#   NOTES  
   --[cmdletbinding(SupportsShouldProcess=$True)] adds '-WhatIf' functionality to items
@@ -438,18 +438,20 @@ Function Get-MDInstance {
         $API = '/api/instances/'
         $var = @()    
 
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty instance*
 
+        #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
 
+        #Give this object a unique typename
         Foreach ($Object in $var) { 
             $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances')
             }
 
         return $var
         }
-    
     Catch {
         Write-Host "Failed to retreive any instances." -ForegroundColor Red
         }
@@ -466,9 +468,6 @@ Function Get-MDPlan {
 
         $API = '/api/service-plans/'
         $var = @()
-
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'provisionType'
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
