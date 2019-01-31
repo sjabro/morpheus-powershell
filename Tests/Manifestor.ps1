@@ -73,7 +73,6 @@
             @{"ModuleName"="Morpheus.Get";"ModuleVersion"="$version"}      
             )
         ModuleVersion     = "$version"
-        FormatsToProcess  = @('Morpheus.Remove.Format.ps1xml')
     }
 
     New-ModuleManifest @manifest
