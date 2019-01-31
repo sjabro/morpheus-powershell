@@ -10,7 +10,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -80,7 +80,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -130,13 +130,13 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Instance.Apps</TypeName>
+					<TypeName>Morpheus.Provisioning.Apps</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -196,13 +196,55 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
+					<TypeName>Morpheus.Operations.Billing</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>Account</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Cost</Label>
+							<Width>15</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										[math]::Round($_.cost,2)
+									</ScriptBlock>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
 					<TypeName>Morpheus.Provisioning.BluePrints</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -250,7 +292,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -302,13 +344,93 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
+					<TypeName>Morpheus.Services.Cypher</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Item Key</Label>
+							<Width>40</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Expiration Date</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>itemKey</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>expireDate</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Instances.History</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Status</Label>
+							<Width>15</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>containerName</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>status</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
 					<TypeName>Morpheus.Administration.PlansAndPricing.Plan</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -350,7 +472,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -408,7 +530,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -472,7 +594,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -528,7 +650,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -596,7 +718,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -670,7 +792,7 @@
 					<TableHeaders>
 						<TableColumnHeader>
 							<Label>ID</Label>
-							<Width>5</Width>
+							<Width>8</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -705,6 +827,102 @@
 									<ScriptBlock>
 										$_.account.name
 									</ScriptBlock>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.VirtualImages</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>50</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Image Type</Label>
+							<Width>15</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Uploaded</Label>
+							<Width>10</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>imageType</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>userUploaded</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Automation.Workflow</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>30</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Tasks</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Description</Label>
+							<Width>50</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>tasks</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Description</PropertyName>
 								</TableColumnItem>
 							</TableColumnItems>
 						</TableRowEntry>
