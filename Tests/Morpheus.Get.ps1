@@ -1,7 +1,7 @@
 ﻿#Set Environment Vars
 $FormatEnumerationLimit = 8
 
-Update-FormatData -AppendPath C:\Users\Bunge\OneDrive\Document\GitHub\morpheus-powershell\Module\Working\Morpheus.Format.ps1xml
+Update-FormatData -AppendPath .\Morpheus.Ge.Format.ps1xml
 
 <#   NOTES  
   --[cmdletbinding(SupportsShouldProcess=$True)] adds '-WhatIf' functionality to items
@@ -25,13 +25,16 @@ Function Check-Flags {
         [AllowEmptyString()]$GroupId,
         [AllowEmptyString()]$ID,
         [AllowEmptyString()]$ItemKey,
+        [AllowEmptyString()]$ImageType,
         [AllowEmptyString()]$InstanceID,
         [AllowEmptyString()]$Name,
         [AllowEmptyString()]$PolicyType,
         [AllowEmptyString()]$ProvisionType,
         [AllowEmptyString()]$RoleType,
+        [AllowEmptyString()]$ServerID,
         [AllowEmptyString()]$Task,
         [AllowEmptyString()]$TaskType,
+        [AllowEmptyString()]$Uploaded,
         [AllowEmptyString()]$Username,
         [AllowEmptyString()]$Zone,
         [AllowEmptyString()]$ZoneId
@@ -97,6 +100,10 @@ Function Check-Flags {
         $var = $var | where itemKey -like $ItemKey
         }
 
+    If ($ImageType) {
+        $var = $var | where imageType -like $ImageType
+        }
+
     If ($InstanceID) {
         $var = $var | where instanceId -like $InstanceID
         }
@@ -121,12 +128,20 @@ Function Check-Flags {
         $var = $var | where roleType -like $RoleType
         }
 
+    If ($ServerID) {
+        $var = $var | where serverId -like $ServerID
+        }
+
     If ($Task) {
         $var = $var | where tasks -like $Task
         }
 
     If ($TaskType) {
         $var = $var | Where-Object { $_.taskType.name -like $TaskType }
+        }
+
+    If ($Uploaded) {
+        $var = $var | where userUploaded -like $Uploaded
         }
 
     If ($Username) {
@@ -142,67 +157,6 @@ Function Check-Flags {
         }
 
     return $var
-    }
-
-Function Connect-Morpheus {
-    <#
-    .Synopsis
-       Makes connection to your Morpheus Appliance.
-    .DESCRIPTION
-       A connection is made to your Morpheus Appliance via port 443.  All calls are made to this connection
-       object until the terminal is closed.
-    .EXAMPLE
-       Connect-Morpheus -URL test.morpheus.com
-    .EXAMPLE
-       Connect-Morpheus -URL https://test.morpheus.com -Username TestUser
-    .EXAMPLE
-       Connect-Morpheus -URL https://test.morpheus.com -Username TestUser -Password S@mplePa55
-    #>
-
-
-    ####  User Variables  ####
-    Param(
-        [Parameter(Mandatory=$true)][string]$URL,        
-        [Parameter(Mandatory=$true)][string]$Username,
-        $Password
-        )
-    if (!$URL.StartsWith('https://')) {
-        $Script:URL = ('https://' + $URL)
-        }
-        ELSE {
-        $Script:URL = $URL
-        }
-    if (-not($Password)) {
-        $Password = Read-host 'Enter Password' -AsSecureString
-        $PlainTextPassword= [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR( ($Password) ))
-        }
-    ELSE {
-        $PlainTextPassword = $Password
-        }
-
-    Try {
-        $Error.Clear()
-        ####  Morpheus Variables  ####
-        $Body = "username=$Username&password=$PlainTextPassword"
-        $AuthURL = "/oauth/token?grant_type=password&scope=write&client_id=morph-customer"
-
-        ####  Create User Token   ####
-        $Token = Invoke-WebRequest -Method POST -Uri ($URL + $AuthURL) -Body $Body | select -ExpandProperty content|
-            ConvertFrom-Json | select -ExpandProperty access_token
-        $Script:Header = @{
-            "Authorization" = "BEARER $Token"
-            }
-        }
-
-    Catch {
-        Write-Host "Failed to authenticate credentials" -ForegroundColor Red
-        }
-    Finally {
-        if ($Error.Count -le 0) {
-            Write-Host "Successfully connected to $URL
-Use `"Get-Command -Module Morpheus`" to discover available commands." -ForegroundColor Yellow
-            }
-        }    
     }
 
 Function Get-MDAccount {
@@ -261,7 +215,7 @@ Function Get-MDApp {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Instance.Apps')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Apps')
             }
 
         return $var
@@ -303,7 +257,7 @@ Function Get-MDBilling {
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Account.Billing')
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Operations.Billing')
             }
 
         return $var
@@ -407,21 +361,17 @@ Function Get-MDCypher {
         $API = '/api/cypher/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'itemKey', 'expireDate'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty cypher* 
 
+        #User flag lookup
         $var = Check-Flags -var $var -ItemKey $ItemKey -ID $ID
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Services.Cypher')
+            }
 
         return $var
 
@@ -433,7 +383,10 @@ Function Get-MDCypher {
 
 Function Get-MDHistory {  
     Param (
-        $InstanceID
+        $Instance,
+        $InstanceID,
+        $Server,
+        $ServerID
         )
 
     Try {
@@ -441,18 +394,25 @@ Function Get-MDHistory {
         $API = '/api/processes/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'instanceId', 'processType', 'status'
+        #Param Lookups
+        If ($Server) {
+            $ServerID = (Get-MDServer -Name $Server).id
+            }
+        If ($Instance) {
+            $InstanceID = (Get-MDInstance -Name $Instance).id
+            }
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty process* 
 
-        $var = Check-Flags -var $var -InstanceID $InstanceID
+        #User flag lookup
+        $var = Check-Flags -var $var -InstanceID $InstanceID -ServerID $ServerID
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.History')
+            }  
 
         return $var
 
@@ -478,18 +438,20 @@ Function Get-MDInstance {
         $API = '/api/instances/'
         $var = @()    
 
+        #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty instance*
 
+        #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
 
+        #Give this object a unique typename
         Foreach ($Object in $var) { 
             $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances')
             }
 
         return $var
         }
-    
     Catch {
         Write-Host "Failed to retreive any instances." -ForegroundColor Red
         }
@@ -506,9 +468,6 @@ Function Get-MDPlan {
 
         $API = '/api/service-plans/'
         $var = @()
-
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'provisionType'
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
@@ -755,7 +714,9 @@ Function Get-MDUser {
 Function Get-MDVirtualImage {
     Param (
         $ID,
-        $Name
+        $Name,
+        $ImageType,
+        $Uploaded
         )
 
     Try {
@@ -763,21 +724,17 @@ Function Get-MDVirtualImage {
         $API = '/api/virtual-images/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'imageType'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #User Lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty virtualImage* 
 
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -ImageType $ImageType -Uploaded $Uploaded
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.VirtualImages')
+            }
 
         return $var
 
@@ -796,25 +753,21 @@ Function Get-MDWorkflow {
         )
     
     Try {
-
+    /
         $API = '/api/task-sets/'
         $var = @()
 
-        #Configure a default display set
-        $defaultDisplaySet = 'ID', 'Name', 'tasks', 'lastUpdated'
-
-        #Create the default property display set
-        $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet(‘DefaultDisplayPropertySet’,[string[]]$defaultDisplaySet)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
+        #User Lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty task* 
 
+        #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID -Task $Task
 
         #Give this object a unique typename
-        $var.PSObject.TypeNames.Insert(0,'Instance.Information')
-        $var | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Workflow')
+            }
 
         return $var
 
