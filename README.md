@@ -2,7 +2,7 @@ The Morpheus API is a very robust API that provides a lot of functionality for b
 
 ## Installation
 
-1. Download all Module folders located under "Modules"
+1. Copy the contents of "Modules" (I.E - Morpheus.Add, Morpheus.Check..)
 2. Move contents into one of your `$env:PSModulePath` paths.
 (Typically `C:\Program Files\WindowsPowerShell\Modules` will suffice)
 		
