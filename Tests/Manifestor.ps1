@@ -44,7 +44,8 @@
         FunctionsToExport = 'Get-*'
         VariablesToExport = '*'
         RequiredModules   = @(
-            @{"ModuleName"="Morpheus.Connect";"ModuleVersion"="1.0"}      
+            @{"ModuleName"="Morpheus.Connect";"ModuleVersion"="1.0"},
+            @{"ModuleName"="Morpheus.Check";"ModuleVersion"="1.0"}      
             )
         ModuleVersion     = "$version"
         FormatsToProcess  = @('Morpheus.Get.Format.ps1xml')
