@@ -1,13 +1,6 @@
 ﻿#Set Environment Vars
 $FormatEnumerationLimit = 8
 
-#Update-FormatData -AppendPath .\Morpheus.Get.Format.ps1xml
-
-<#   NOTES  
-  --[cmdletbinding(SupportsShouldProcess=$True)] adds '-WhatIf' functionality to items
-  --Come Back to Billing Logic
-#>
-
 Function Check-Flags {
     Param (
         $var,

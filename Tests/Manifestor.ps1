@@ -1,5 +1,21 @@
 ﻿$version = Read-Host "Enter Release Version"
 
+#Morpheus.Check
+    $manifest = @{}
+    $manifest = @{
+        Path              = "C:\Users\Bunge\OneDrive\Document\GitHub\morpheus-powershell\Module\Morpheus.Check\$version\Morpheus.Check.psd1"
+        RootModule        = 'Morpheus.Check.psm1' 
+        Author            = 'Morpheus Data'
+        CompanyName       = 'Morpheus Data'
+        Description       = 'Commandlets for API interaction with a Morpheus environment'
+        PowerShellVersion = '4.0'
+        FunctionsToExport = '*'
+        VariablesToExport = '*'
+        ModuleVersion     = "$version"
+    }
+
+    New-ModuleManifest @manifest
+
 #Morpheus.Connect
     $manifest = @{}
     $manifest = @{
@@ -50,7 +66,8 @@
         RequiredModules   = @(
             @{"ModuleName"="Morpheus.Connect";"ModuleVersion"="1.0"},   
             @{"ModuleName"="Morpheus.Get";"ModuleVersion"="1.0"},
-            @{"ModuleName"="Morpheus.Remove";"ModuleVersion"="1.0"}      
+            @{"ModuleName"="Morpheus.Remove";"ModuleVersion"="1.0"},
+            @{"ModuleName"="Morpheus.Check";"ModuleVersion"="1.0"}     
             )
         ModuleVersion     = "$version"
     }
@@ -70,7 +87,8 @@
         VariablesToExport = '*'
         RequiredModules   = @(
             @{"ModuleName"="Morpheus.Connect";"ModuleVersion"="$version"},
-            @{"ModuleName"="Morpheus.Get";"ModuleVersion"="$version"}      
+            @{"ModuleName"="Morpheus.Get";"ModuleVersion"="$version"},
+            @{"ModuleName"="Morpheus.Check";"ModuleVersion"="1.0"}      
             )
         ModuleVersion     = "$version"
     }
