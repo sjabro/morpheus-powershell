@@ -20,7 +20,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Status</Label>
-							<Width>10</Width>
+							<Width>15</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
