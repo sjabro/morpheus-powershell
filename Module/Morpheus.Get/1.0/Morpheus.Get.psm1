@@ -567,7 +567,7 @@ Function Get-MDVirtualImage {
         $var = @()
 
         #User Lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + '?max=10000') -Headers $Header |
         ConvertFrom-Json | select -ExpandProperty virtualImage* 
 
         #User flag lookup
