@@ -1,73 +1,28 @@
 ﻿#Set Environment Vars
 $FormatEnumerationLimit = 8
 
-Function Get-MDAccount {
-    Param (
-        $ID,
-        $Name,
-        $Currency,
-        $Active
-        )
 
-    Try {
+#  █████  ██    ██ ████████ ██   ██ ███████ ███    ██ ████████ ██  ██████  █████  ████████ ██  ██████  ███    ██ 
+# ██   ██ ██    ██    ██    ██   ██ ██      ████   ██    ██    ██ ██      ██   ██    ██    ██ ██    ██ ████   ██ 
+# ███████ ██    ██    ██    ███████ █████   ██ ██  ██    ██    ██ ██      ███████    ██    ██ ██    ██ ██ ██  ██ 
+# ██   ██ ██    ██    ██    ██   ██ ██      ██  ██ ██    ██    ██ ██      ██   ██    ██    ██ ██    ██ ██  ██ ██ 
+# ██   ██  ██████     ██    ██   ██ ███████ ██   ████    ██    ██  ██████ ██   ██    ██    ██  ██████  ██   ████ 
+                                                                                                               
+                                                                                                               
+#  ██████  ██████  ███████ ██████   █████  ████████ ██  ██████  ███    ██ ███████ 
+# ██    ██ ██   ██ ██      ██   ██ ██   ██    ██    ██ ██    ██ ████   ██ ██      
+# ██    ██ ██████  █████   ██████  ███████    ██    ██ ██    ██ ██ ██  ██ ███████ 
+# ██    ██ ██      ██      ██   ██ ██   ██    ██    ██ ██    ██ ██  ██ ██      ██ 
+#  ██████  ██      ███████ ██   ██ ██   ██    ██    ██  ██████  ██   ████ ███████ 
+                                                                                
 
-        $API = '/api/accounts/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty account* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Currency $Currency -Active $Active
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) { 
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.Tenants')
-            }
-        
-        $Account = $var
-
-        return $Account
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any accounts." -ForegroundColor Red
-        }
-
-    }
-
-Function Get-MDApp {
-    Param (
-        $ID,
-        $Name
-        )
-
-    Try {
-
-        $API = '/api/apps/'
-        $var = @()
-        
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty app* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Apps')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any apps." -ForegroundColor Red
-        }
-
-    }
+# This section contains functions for getting objects from the Operations primary tab
+#
+# Current capabilities:
+# 1. Billing
+# 2. History
+#
+#  To be completed:
 
 Function Get-MDBilling {
     <#
@@ -78,8 +33,11 @@ Function Get-MDBilling {
     #>
     
     Param (
-        $AccountID,
-        $Name
+        # Name
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $AccountID
         )
 
     Try {
@@ -92,7 +50,7 @@ Function Get-MDBilling {
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty bill* 
+        ConvertFrom-Json | Select-Object  -ExpandProperty bill* 
 
         #User flag lookup
         $var = Check-Flags -var $var -Name $Name -AccountID $AccountID
@@ -111,119 +69,13 @@ Function Get-MDBilling {
 
     }
 
-Function Get-MDBlueprint {
-    Param (
-        $ID,
-        $Name,
-        $Category
-        )
-
-    Try {
-
-        $API = '/api/app-templates/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty appTemplates 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Category $Category
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.BluePrints')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any blueprints." -ForegroundColor Red
-        }
-    }
-
-Function Get-MDBuild {
-    Param (
-        )
-
-        $API = '/api/setup/check/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json
-
-    return $var
-
-    }
-
-Function Get-MDCloud {
-    Param (
-        $ID,
-        $Name,
-        $Group
-        )
-
-    Try {
-
-        $API = '/api/zones/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty zone* 
-
-        $Groups = $Group
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Groups $Groups
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clouds')
-            }
-
-        return $var
-        }
-    Catch {
-        Write-Host "Failed to retreive any clouds." -ForegroundColor Red
-        }
-
-    }
-
-Function Get-MDCypher {
-    Param (
-        $ID,
-        $ItemKey
-        )
-
-    Try {
-
-        $API = '/api/cypher/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty cypher* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -ItemKey $ItemKey -ID $ID
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Services.Cypher')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive anything from cypher." -ForegroundColor Red
-        }
-    }
-
 Function Get-MDHistory {  
+    <#
+    .Synopsis
+       History IDs and status from instances
+    .DESCRIPTION
+       Status of processes run against instance returned as a list of objects
+    #>
     Param (
         $Instance,
         $InstanceID,
@@ -246,7 +98,7 @@ Function Get-MDHistory {
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty process* 
+        ConvertFrom-Json | Select-Object  -ExpandProperty process* 
 
         #User flag lookup
         $var = Check-Flags -var $var -InstanceID $InstanceID -ServerID $ServerID
@@ -265,10 +117,49 @@ Function Get-MDHistory {
 
     }
 
+
+# ██████  ██████   ██████  ██    ██ ██ ███████ ██  ██████  ███    ██ ██ ███    ██  ██████  
+# ██   ██ ██   ██ ██    ██ ██    ██ ██ ██      ██ ██    ██ ████   ██ ██ ████   ██ ██       
+# ██████  ██████  ██    ██ ██    ██ ██ ███████ ██ ██    ██ ██ ██  ██ ██ ██ ██  ██ ██   ███ 
+# ██      ██   ██ ██    ██  ██  ██  ██      ██ ██ ██    ██ ██  ██ ██ ██ ██  ██ ██ ██    ██ 
+# ██      ██   ██  ██████    ████   ██ ███████ ██  ██████  ██   ████ ██ ██   ████  ██████  
+
+# This section contains functions for getting objects from the Provisioning primary tab
+#
+# CURRENT CAPABILITIES:
+# 1. Instances
+# 2. Apps
+# 3. Blueprints
+# 4. Automation: Tasks
+# 5. Automation: Task Types
+# 6. Automation: Workflows
+# 7. Automation: Power Schedules
+# 8. Virtual Images
+#
+# TO BE COMPLETED:
+# 1. Library: Instance Types
+# 2. Library: Layouts
+# 3. Library: Node Types
+# 4. Library: Option Types
+# 5. Library: Option Lists
+# 6. Library: File Templates
+# 7. Library: Scripts
+# 8. Library: Spec Templates
+# 9. Library: Cluster Layouts
+
 Function Get-MDInstance {
+    <#
+    .Synopsis
+       Get all instances from Morpheus appliance
+    .DESCRIPTION
+       Gets all instances based on the switch selection of Name,ID, Cloud Name, Cloud ID, Group Name or Group ID
+    #>
     Param (
-        $ID,
+        # Name of the Instance
+        [Parameter(Position=0)]
+        [string]
         $Name,
+        $ID,
         $Cloud,
         $CloudId,
         $Group,
@@ -282,7 +173,7 @@ Function Get-MDInstance {
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty instance*
+        ConvertFrom-Json | Select-Object  -ExpandProperty instance*
 
         #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
@@ -299,8 +190,524 @@ Function Get-MDInstance {
         }
     }
 
+Function Get-MDApp {
+    Param (
+        # Name of the app
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID
+        )
+
+    Try {
+
+        $API = '/api/apps/'
+        $var = @()
+        
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty app* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Apps')
+            }
+
+        return $var
+
+        }
+    Catch {
+        Write-Host "Failed to retreive any apps." -ForegroundColor Red
+        }
+
+    }                                                                                 
+
+Function Get-MDBlueprint {
+    Param (
+        # Name of the blueprint
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $Category
+        )
+
+    Try {
+
+        $API = '/api/app-templates/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty appTemplates 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Category $Category
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.BluePrints')
+            }
+
+        return $var
+
+        }
+    Catch {
+        Write-Host "Failed to retreive any blueprints." -ForegroundColor Red
+        }
+    }
+
+# AUTOMATION
+Function Get-MDPowerSchedule {
+    Param (
+        # Name of the Power Schedule
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $Enabled
+        )
+    Try {
+        $API = '/api/power-schedules/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty schedule* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Operations.Scheduling.PowerSchedule')
+            }
+
+        return $var
+        }
+    Catch {
+        Write-Host "Failed to retreive any power schedules." -ForegroundColor Red
+        }
+    }
+
+Function Get-MDTask {
+    Param (
+        # Name of the Task
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $TaskType
+        )
+
+        $API = '/api/tasks/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty task* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
+        
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
+            }
+
+    return $var
+
+    }
+
+Function Get-MDTaskType {
+    Param (
+        # Name of the Task Type
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID
+        )
+
+    Try {
+
+        $API = '/api/task-types/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty task* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks.Types')
+            }
+
+        return $var
+
+        }
+    Catch {
+        Write-Host "Failed to retreive any task types." -ForegroundColor Red
+        }
+    }
+
+Function Get-MDWorkflow {
+    Param (
+        # Name of the Workflow
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $Task
+        )
+    
+    Try {
+    
+        $API = '/api/task-sets/'
+        $var = @()
+
+        #User Lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object   -ExpandProperty task* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Task $Task
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Workflow')
+            }
+
+        return $var
+
+        }
+    Catch {
+        Write-Host "Failed to retreive any workflows." -ForegroundColor Red
+        }
+
+    }  
+
+Function Get-MDVirtualImage {
+    Param (
+        # Name of the Virtual Image
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $ImageType,
+        $Uploaded
+        )
+
+    Try {
+
+        $API = '/api/virtual-images/'
+        $var = @()
+
+        #User Lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object   -ExpandProperty virtualImage* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -ImageType $ImageType -Uploaded $Uploaded
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.VirtualImages')
+            }
+
+        return $var
+
+        }
+    Catch {
+        Write-Host "Failed to retreive any virtual images." -ForegroundColor Red
+        }
+
+    }
+
+
+# ██ ███    ██ ███████ ██████   █████  ███████ ████████ ██████  ██    ██  ██████ ████████ ██    ██ ██████  ███████ 
+# ██ ████   ██ ██      ██   ██ ██   ██ ██         ██    ██   ██ ██    ██ ██         ██    ██    ██ ██   ██ ██      
+# ██ ██ ██  ██ █████   ██████  ███████ ███████    ██    ██████  ██    ██ ██         ██    ██    ██ ██████  █████   
+# ██ ██  ██ ██ ██      ██   ██ ██   ██      ██    ██    ██   ██ ██    ██ ██         ██    ██    ██ ██   ██ ██      
+# ██ ██   ████ ██      ██   ██ ██   ██ ███████    ██    ██   ██  ██████   ██████    ██     ██████  ██   ██ ███████ 
+
+Function Get-MDCloud {
+    Param (
+        # Name of the Cloud
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $Group
+        )
+
+    Try {
+
+        $API = '/api/zones/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty zone* 
+
+        $Groups = $Group
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Groups $Groups
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clouds')
+            }
+
+        return $var
+        }
+    Catch {
+        Write-Host "Failed to retreive any clouds." -ForegroundColor Red
+        }
+
+    }                                                                                                                
+
+Function Get-MDServer {
+    Param (
+        # Name of the Server
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $Cloud,
+        $CloudId,
+        $OS
+        )
+
+    Try {
+
+        $API = '/api/servers/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty server* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Zone $Cloud -ZoneId $CloudId -OS $OS
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+            }
+        
+        return $var
+
+        }
+    Catch {
+        Write-Host "Failed to retreive any servers." -ForegroundColor Red
+        }
+    }
+
+Function Get-MDNetwork {
+    Param (
+        # Name of the network
+        [Parameter(Position=0)]
+        [string]
+        $Name
+        )
+
+    Try {
+
+        $API = '/api/networks/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object   -ExpandProperty Networks* 
+
+        $Groups = $Group
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Networks')
+            }
+
+        return $var
+        }
+    Catch {
+        Write-Host "Failed to retreive any networks." -ForegroundColor Red
+        }
+
+    }
+
+    Function Get-MDGroup {
+        Param (
+            # Name of the Group
+            [Parameter(Position=0)]
+            [string]
+            $Name
+            )
+    
+        Try {
+    
+            $API = '/api/groups/'
+            $var = @()
+    
+            #API lookup
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+            ConvertFrom-Json | select-object -ExpandProperty Groups* 
+    
+            $Groups = $Group
+    
+            #User flag lookup
+            $var = Check-Flags -var $var -Name $Name
+    
+            #Give this object a unique typename
+            Foreach ($Object in $var) {
+                $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Groups')
+                }
+    
+            return $var
+            }
+        Catch {
+            Write-Host "Failed to retreive any networks." -ForegroundColor Red
+            }
+    
+        }
+
+# ██       ██████   ██████  ███████ 
+# ██      ██    ██ ██       ██      
+# ██      ██    ██ ██   ███ ███████ 
+# ██      ██    ██ ██    ██      ██ 
+# ███████  ██████   ██████  ███████ 
+                                  
+
+# ███    ███  ██████  ███    ██ ██ ████████  ██████  ██████  ██ ███    ██  ██████  
+# ████  ████ ██    ██ ████   ██ ██    ██    ██    ██ ██   ██ ██ ████   ██ ██       
+# ██ ████ ██ ██    ██ ██ ██  ██ ██    ██    ██    ██ ██████  ██ ██ ██  ██ ██   ███ 
+# ██  ██  ██ ██    ██ ██  ██ ██ ██    ██    ██    ██ ██   ██ ██ ██  ██ ██ ██    ██ 
+# ██      ██  ██████  ██   ████ ██    ██     ██████  ██   ██ ██ ██   ████  ██████  
+                                                                                 
+                                                                                 
+# ████████  ██████   ██████  ██      ███████ 
+#    ██    ██    ██ ██    ██ ██      ██      
+#    ██    ██    ██ ██    ██ ██      ███████ 
+#    ██    ██    ██ ██    ██ ██           ██ 
+#    ██     ██████   ██████  ███████ ███████ 
+
+Function Get-MDCypher {
+    Param (
+        $ID,
+        $ItemKey
+        )
+
+    Try {
+
+        $API = '/api/cypher/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty cypher* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -ItemKey $ItemKey -ID $ID -NameLike $NameLike 
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Services.Cypher')
+            }
+
+        return $var
+
+        }
+    Catch {
+        Write-Host "Failed to retreive anything from cypher." -ForegroundColor Red
+        }
+    }                                        
+
+# ██████  ███████ ██████  ███████  ██████  ███    ██  █████  ███████ 
+# ██   ██ ██      ██   ██ ██      ██    ██ ████   ██ ██   ██ ██      
+# ██████  █████   ██████  ███████ ██    ██ ██ ██  ██ ███████ ███████ 
+# ██      ██      ██   ██      ██ ██    ██ ██  ██ ██ ██   ██      ██ 
+# ██      ███████ ██   ██ ███████  ██████  ██   ████ ██   ██ ███████ 
+                                                                   
+                                                                   
+
+#  █████  ██████  ███    ███ ██ ███    ██ ██ ███████ ████████ ██████   █████  ████████ ██  ██████  ███    ██ 
+# ██   ██ ██   ██ ████  ████ ██ ████   ██ ██ ██         ██    ██   ██ ██   ██    ██    ██ ██    ██ ████   ██ 
+# ███████ ██   ██ ██ ████ ██ ██ ██ ██  ██ ██ ███████    ██    ██████  ███████    ██    ██ ██    ██ ██ ██  ██ 
+# ██   ██ ██   ██ ██  ██  ██ ██ ██  ██ ██ ██      ██    ██    ██   ██ ██   ██    ██    ██ ██    ██ ██  ██ ██ 
+# ██   ██ ██████  ██      ██ ██ ██   ████ ██ ███████    ██    ██   ██ ██   ██    ██    ██  ██████  ██   ████ 
+                                                                                                           
+                                                                                                           
+Function Get-MDAccount {
+    Param (
+        # Name of the account
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $Currency,
+        $Active
+        )
+
+    Try {
+
+        $API = '/api/accounts/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object -ExpandProperty account* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Currency $Currency -Active $Active
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) { 
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.Tenants')
+            }
+        
+        $Account = $var
+
+        return $Account
+
+        }
+    Catch {
+        Write-Host "Failed to retreive any accounts." -ForegroundColor Red
+        }
+
+    }
+
+
+
+Function Get-MDBuild {
+    Param (
+        )
+
+        $API = '/api/setup/check/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json
+
+    return $var
+
+    }
+
+
 Function Get-MDPlan {
     Param (
+        # Name of the Plan
+        [Parameter(Position=0)]
+        [string]
         $Name,
         $ID,
         $ProvisionType
@@ -313,7 +720,7 @@ Function Get-MDPlan {
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty servicePlan* 
+        ConvertFrom-Json | Select-Object  -ExpandProperty servicePlan* 
         
         #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID -ProvisionType $ProvisionType
@@ -333,8 +740,11 @@ Function Get-MDPlan {
 
 Function Get-MDPolicy {
     Param (
-        $ID,
+        # Name of the Policy
+        [Parameter(Position=0)]
+        [string]
         $Name,
+        $ID,
         $PolicyType,
         $Enabled
         )
@@ -345,7 +755,7 @@ Function Get-MDPolicy {
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty policies 
+        ConvertFrom-Json | Select-Object  -ExpandProperty policies 
 
         #User flag lookup
         $var = Check-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled -PolicyType $PolicyType
@@ -362,34 +772,6 @@ Function Get-MDPolicy {
         }
     }
 
-Function Get-MDPowerSchedule {
-    Param (
-        $ID,
-        $Name,
-        $Enabled
-        )
-    Try {
-        $API = '/api/power-schedules/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty schedule* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Operations.Scheduling.PowerSchedule')
-            }
-
-        return $var
-        }
-    Catch {
-        Write-Host "Failed to retreive any power schedules." -ForegroundColor Red
-        }
-    }
 
 Function Get-MDRole {
     Param (
@@ -405,7 +787,7 @@ Function Get-MDRole {
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty role* 
+        ConvertFrom-Json | Select-Object  -ExpandProperty role* 
 
         #User flag lookup
         $var = Check-Flags -var $var -Authority $Authority -ID $ID -RoleType $RoleType
@@ -423,103 +805,16 @@ Function Get-MDRole {
         }
     }
 
-Function Get-MDServer {
-    Param (
-        $ID,
-        $Name,
-        $Cloud,
-        $CloudId,
-        $OS
-        )
-
-    Try {
-
-        $API = '/api/servers/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty server* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Zone $Cloud -ZoneId $CloudId -OS $OS
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
-            }
-        
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any servers." -ForegroundColor Red
-        }
-    }
-
-Function Get-MDTask {
-    Param (
-        $ID,
-        $Name,
-        $TaskType
-        )
-
-        $API = '/api/tasks/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty task* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
-        
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
-            }
-
-    return $var
-
-    }
-
-Function Get-MDTaskType {
-    Param (
-        $ID,
-        $Name
-        )
-
-    Try {
-
-        $API = '/api/task-types/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty task* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks.Types')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any task types." -ForegroundColor Red
-        }
-    }
 
 Function Get-MDUser {
     Param (
+        # Name of the Task
+        [Parameter(Position=0)]
+        [string]
+        $Username,
         $Account,
         $AccountID,
         $ID,
-        $Username,
         $DisplayName
         )
 
@@ -527,13 +822,13 @@ Function Get-MDUser {
 
         $var = @()
       
-        $Accounts = Get-MDAccount | select -ExpandProperty id
+        $Accounts = Get-MDAccount | Select-Object  -ExpandProperty id
 
         #User Lookup
         foreach ($a in $accounts) {
             $API = "/api/accounts/$a/users"
             $obj = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-            ConvertFrom-Json | select -ExpandProperty user* 
+            ConvertFrom-Json | Select-Object   -ExpandProperty user* 
             $var += $obj
             }
         
@@ -551,71 +846,4 @@ Function Get-MDUser {
     Catch {
         Write-Host "Failed to retreive any users." -ForegroundColor Red
         }
-    }
-
-Function Get-MDVirtualImage {
-    Param (
-        $ID,
-        $Name,
-        $ImageType,
-        $Uploaded
-        )
-
-    Try {
-
-        $API = '/api/virtual-images/'
-        $var = @()
-
-        #User Lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + '?max=10000') -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty virtualImage* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -ImageType $ImageType -Uploaded $Uploaded
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.VirtualImages')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any virtual images." -ForegroundColor Red
-        }
-
-    }
-
-Function Get-MDWorkflow {
-    Param (
-        $ID,
-        $Name,
-        $Task
-        )
-    
-    Try {
-    
-        $API = '/api/task-sets/'
-        $var = @()
-
-        #User Lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | select -ExpandProperty task* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Task $Task
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Workflow')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any workflows." -ForegroundColor Red
-        }
-
     }

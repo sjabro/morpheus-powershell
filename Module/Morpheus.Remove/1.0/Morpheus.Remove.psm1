@@ -89,7 +89,7 @@ Function Remove-MDPolicy {
                 Foreach ($v in $var) {
                     $N = $v.name
                     If ($PSCmdlet.ShouldProcess("$n","Remove Policy")) {
-                        Invoke-WebRequest -Method Delete -Uri ($URL + $API + $v.id) -Headers $Header
+                        Invoke-WebRequest -Method Delete -Uri ($URL + $API + $v.id + '?') -Headers $Header
                         }
                     }
                 }

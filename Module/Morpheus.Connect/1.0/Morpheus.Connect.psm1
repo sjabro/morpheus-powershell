@@ -17,50 +17,75 @@ Function Connect-Morpheus {
     #>
 
 
-    ####  User Variables  ####
+    ####  User Inputs  ####
+    [CmdletBinding(DefaultParameterSetName = 'BasicAuth')]
     Param(
-        [Parameter(Mandatory=$true)][string]$URL,        
-        [Parameter(Mandatory=$true)][string]$Username,
-        $Password
+        ### Primary URL for connectivity
+        [Alias("Server")]
+        [Parameter(ParameterSetName = "BasicAuth", Mandatory=$true)]
+        [Parameter(ParameterSetName = 'CredAuth', Mandatory=$true)]
+        [string]$URL,        
+        [Parameter(ParameterSetName = "BasicAuth", Mandatory=$true)]
+        [string]$Username,
+        [Parameter(ParameterSetName = "BasicAuth")]
+        $Password,
+        [Parameter(ParameterSetName = 'CredAuth', Mandatory=$true)]
+        [System.Management.Automation.PSCredential]
+        $Credential
         )
+    
+    ## Ensure https:// in URL
     if (!$URL.StartsWith('https://')) {
         $URL = ('https://' + $URL)
         }
-
-    $Script:URL = $URL
-
-    if (-not($Password)) {
-        $Password = Read-host 'Enter Password' -AsSecureString
-        $PlainTextPassword= [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR( ($Password) ))
+    
+    ## Export global vars
+    $Global:URL = $URL
+    
+    ## If Credential switch not used providing a PS credential, build the credential from user input user/pass combo
+    if (!($Credential)){
+        if (!($Password)){
+            $Password = Read-Host "Enter password for $($Username)" -AsSecureString
+        }else{
+            $Password = $Password | ConvertTo-SecureString -AsPlainText -Force
         }
-    ELSE {
-        $PlainTextPassword = $Password
-        }
+        $Credential = New-Object System.Management.Automation.PSCredential($Username,$Password)
+    }
 
+    # Create the body for the post
+    $postBody = @{
+        grant_type = "password"
+        client_id = "morph-api"
+        scope = "write"
+        username = $Credential.UserName
+        password = $Credential.GetNetworkCredential().Password
+        } 
+
+    ## Get that token
     Try {
-        $Errors = $null
+        $err = $null
         ####  Morpheus Variables  ####
-        $Body = "username=$Username&password=$PlainTextPassword"
-        $AuthURL = "/oauth/token?grant_type=password&scope=write&client_id=morph-customer"
+        $AuthURL = "/oauth/token"
 
         ####  Create User Token   ####
-        $Token = Invoke-WebRequest -Method POST -Uri ($URL + $AuthURL) -Body $Body | select -ExpandProperty content|
-            ConvertFrom-Json | select -ExpandProperty access_token
-        $Script:Header = @{
+        $call = Invoke-WebRequest -SkipCertificateCheck -Method POST -Uri ($URL + $AuthURL) -Body $postBody -ErrorVariable err -ErrorAction SilentlyContinue 
+        $Token = ($call | Select-Object -ExpandProperty content | ConvertFrom-Json -Depth 10).access_token
+        
+        $Global:Header = @{
             "Authorization" = "BEARER $Token"
             }
         }
 
-    Catch {
-        $Errors = $true
-        Write-Host "Failed to authenticate credentials" -ForegroundColor Red
+    Catch [Exception]{
+        if ($err){
+            Write-Host $err.message -ForegroundColor Red
+            Break
+            }
         }
     Finally {
-        if (!$Errors) {
-            Write-Host "Successfully connected to $URL.
+        if (!$err) {
+            Write-Host "Successfully connected to $URL. 
 Use `"Get-Command -Module Morpheus`" to discover available commands." -ForegroundColor Yellow
             }
         }
     }
-
-Export-ModuleMember -Variable URL,Header

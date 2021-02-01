@@ -146,6 +146,10 @@
         $var = $var | Where-Object { $_.zone.id -like $ZoneId }
         }
 
+    If ($NameLike) {
+        $var = $var | Where-Object phrase -like $NameLike
+        }
+
     return $var
     }
 
