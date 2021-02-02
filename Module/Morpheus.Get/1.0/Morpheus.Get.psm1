@@ -387,6 +387,23 @@ Function Get-MDTask {
     .DESCRIPTION
        Gets all or one task based on the switch selection of Name, ID, TaskType. 
        Name can be used from position 0 without the switch to get a specific task by name.
+       Available task types:
+        - Ansible Playbook
+        - Ansible Tower Job
+        - Chef bootstrap
+        - Email
+        - Groovy Script
+        - HTTP
+        - Javascript
+        - jRuby Script
+        - Library Script
+        - Library Template
+        - PowerShell Script
+        - Puppet Agent Install
+        - Python Script
+        - Restart
+        - Shell Script
+        - vRealize Orchestrator Workflow
     .EXAMPLE
         Get-MDTask -Name task1
         
