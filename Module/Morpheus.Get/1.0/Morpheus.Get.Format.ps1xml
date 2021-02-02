@@ -150,6 +150,11 @@
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
+							<Label>Type</Label>
+							<Width>10</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
 							<Label>Instance Count</Label>
 							<Width>10</Width>
 							<Alignment>center</Alignment>
@@ -176,6 +181,9 @@
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>Status</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Type</PropertyName>
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>instanceCount</PropertyName>
@@ -442,6 +450,11 @@
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
+							<Label>Instances</Label>
+							<Width>15</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
 							<Label>Clouds</Label>
 							<!--<AutoSize/>-->
 							<Alignment>Left</Alignment>
@@ -458,6 +471,11 @@
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>Location</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.stats.instancecounts.all
+									</ScriptBlock>
 								</TableColumnItem>
 								<TableColumnItem>
 									<ScriptBlock>

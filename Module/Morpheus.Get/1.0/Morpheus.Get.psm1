@@ -127,7 +127,7 @@ Function Get-MDHistory {
 # This section contains functions for getting objects from the Provisioning primary tab
 #
 # CURRENT CAPABILITIES:
-# 1. Instances
+# 1. Instances: Get-MDInstance
 # 2. Apps
 # 3. Blueprints
 # 4. Automation: Tasks
@@ -152,7 +152,29 @@ Function Get-MDInstance {
     .Synopsis
        Get all instances from Morpheus appliance
     .DESCRIPTION
-       Gets all instances based on the switch selection of Name,ID, Cloud Name, Cloud ID, Group Name or Group ID
+       Gets all instances based on the switch selection of Name,ID, Cloud Name, Cloud ID, Group Name or Group ID. 
+       Name can be used from position 0 without the switch to get a specific instance by name.
+       Can accept pipeline input from the Get-MDCloud and Get-MDGroup functions
+    .EXAMPLE
+        Get-MDInstance -Name instance1
+        
+        This will return the data for an instance named "instance1"
+    .EXAMPLE
+        Get-MDInstance instance1
+
+        This will return the data for an instance named "instance1"
+    .EXAMPLE
+        Get-MDInstance -Cloud cloud1
+
+        This will return all instances related to the Cloud "cloud1"
+    .EXAMPLE
+        Get-MDCloud "cloud1" | Get-MDInstance
+
+        This will get the object ofthe cloud "cloud1" and pipe that object to Get-MDInstance. This will return all instances for the cloud.
+    .EXAMPLE
+        Get-MDGroup "Developers" | Get-MDInstance
+
+        This will get the object of the group "developers" and pipe that object to Get-MDInstance. This will return all instances for the group.
     #>
     Param (
         # Name of the Instance
@@ -160,35 +182,57 @@ Function Get-MDInstance {
         [string]
         $Name,
         $ID,
+        # Name of the cloud
+        [Parameter()]
+        [string]
         $Cloud,
+        # ID of the cloud
+        [Parameter()]
+        [int]
         $CloudId,
         $Group,
-        $GroupId
+        $GroupId,
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
         )
+        
+        process {
 
-    Try {
-
-        $API = '/api/instances/'
-        $var = @()    
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | Select-Object  -ExpandProperty instance*
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) { 
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances')
+            # Set parameters for flag check via pipeline
+            if ($InputObject.zoneType){
+                $Cloud = $InputObject.Name
+                $CloudId = $InputObject.Id
+            }else{
+                $Group = $InputObject.name
+                $GroupID = $InputObject.Id
             }
 
-        return $var
+            Try {
+
+                $API = '/api/instances/'
+                $var = @()    
+
+                #API lookup
+                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+                ConvertFrom-Json | Select-Object  -ExpandProperty instance*
+
+                #User flag lookup
+                $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
+
+                #Give this object a unique typename
+                Foreach ($Object in $var) { 
+                    $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances')
+                    }
+
+                return $var
+                }
+            Catch {
+                Write-Host "Failed to retreive any instances." -ForegroundColor Red
+                }
+            }
         }
-    Catch {
-        Write-Host "Failed to retreive any instances." -ForegroundColor Red
-        }
-    }
 
 Function Get-MDApp {
     Param (
@@ -196,33 +240,46 @@ Function Get-MDApp {
         [Parameter(Position=0)]
         [string]
         $Name,
-        $ID
+        $ID,
+        $AppType,
+        $Group,
+        $GroupId,
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
         )
 
-    Try {
+    process {
 
-        $API = '/api/apps/'
-        $var = @()
-        
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | Select-Object  -ExpandProperty app* 
+        # Set parameters for flag check via pipeline
+        $Group = $InputObject.name
+        $GroupID = $InputObject.Id
 
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        Try {
 
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Apps')
+            $API = '/api/apps/'
+            $var = @()
+            
+            #API lookup
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+            ConvertFrom-Json | Select-Object  -ExpandProperty app* 
+
+            #User flag lookup
+            $var = Check-Flags -var $var -Name $Name -ID $ID -AppType $AppType -Group $Group -GroupId $GroupId
+
+            #Give this object a unique typename
+            Foreach ($Object in $var) {
+                $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Apps')
+                }
+
+            return $var
+
             }
-
-        return $var
-
+        Catch {
+            Write-Host "Failed to retreive any apps." -ForegroundColor Red
+            }
         }
-    Catch {
-        Write-Host "Failed to retreive any apps." -ForegroundColor Red
-        }
-
     }                                                                                 
 
 Function Get-MDBlueprint {
@@ -437,6 +494,7 @@ Function Get-MDVirtualImage {
 # ██ ██   ████ ██      ██   ██ ██   ██ ███████    ██    ██   ██  ██████   ██████    ██     ██████  ██   ██ ███████ 
 
 Function Get-MDCloud {
+    [cmdletbinding()]
     Param (
         # Name of the Cloud
         [Parameter(Position=0)]
