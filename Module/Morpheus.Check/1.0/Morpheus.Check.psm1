@@ -28,7 +28,7 @@
         [AllowEmptyString()]$Username,
         [AllowEmptyString()]$Zone,
         [AllowEmptyString()]$ZoneId,
-        [AllowEmptyString()]$AppType
+        [AllowEmptyString()]$Type
         )    
 
     If ($Account) {
@@ -147,8 +147,8 @@
         $var = $var | Where-Object { $_.zone.id -like $ZoneId }
         }
 
-    If ($AppType) {
-        $var = $var | Where-Object type -like $AppType
+    If ($Type) {
+        $var = $var | Where-Object type -like $Type
         }
 
     return $var

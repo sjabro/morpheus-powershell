@@ -176,11 +176,14 @@ Function Get-MDInstance {
 
         This will get the object of the group "developers" and pipe that object to Get-MDInstance. This will return all instances for the group.
     #>
+    [cmdletbinding()]
     Param (
         # Name of the Instance
         [Parameter(Position=0)]
         [string]
         $Name,
+        [Parameter()]
+        [int]
         $ID,
         # Name of the cloud
         [Parameter()]
@@ -190,7 +193,11 @@ Function Get-MDInstance {
         [Parameter()]
         [int]
         $CloudId,
+        [Parameter()]
+        [string]
         $Group,
+        [Parameter()]
+        [int]
         $GroupId,
         # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
@@ -235,14 +242,47 @@ Function Get-MDInstance {
         }
 
 Function Get-MDApp {
+    <#
+    .Synopsis
+       Get all apps from Morpheus appliance
+    .DESCRIPTION
+       Gets all apps based on the switch selection of Name, ID, Type, Group Name or Group ID. 
+       Name can be used from position 0 without the switch to get a specific app by name.
+       Can accept pipeline input from the Get-MDGroup function
+    .EXAMPLE
+        Get-MDApp -Name app1
+        
+        This will return the data for an app named "app1"
+    .EXAMPLE
+        Get-MDApp app1
+
+        This will return the data for an app named "app1"
+    .EXAMPLE
+        Get-MDApp -Group "developers"
+
+        This will return all apps related to the group "developers"
+    .EXAMPLE
+        Get-MDGroup "developers" | Get-MDInstance
+
+        This will get the object of the group "developers" and pipe that object to Get-MDApp. This will return all apps for the group.
+    #>
+    [cmdletbinding()]
     Param (
         # Name of the app
         [Parameter(Position=0)]
         [string]
         $Name,
+        [Parameter()]
+        [int]
         $ID,
-        $AppType,
+        [Parameter()]
+        [string]
+        $Type,
+        [Parameter()]
+        [string]
         $Group,
+        [Parameter()]
+        [int]
         $GroupId,
         # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
@@ -266,7 +306,7 @@ Function Get-MDApp {
             ConvertFrom-Json | Select-Object  -ExpandProperty app* 
 
             #User flag lookup
-            $var = Check-Flags -var $var -Name $Name -ID $ID -AppType $AppType -Group $Group -GroupId $GroupId
+            $var = Check-Flags -var $var -Name $Name -ID $ID -Type $Type -Group $Group -GroupId $GroupId
 
             #Give this object a unique typename
             Foreach ($Object in $var) {
@@ -283,26 +323,47 @@ Function Get-MDApp {
     }                                                                                 
 
 Function Get-MDBlueprint {
+    <#
+    .Synopsis
+       Get all blueprints from Morpheus appliance
+    .DESCRIPTION
+       Gets all blueprints based on the switch selection of Name, ID, Category or Type. 
+       Name can be used from position 0 without the switch to get a specific blueprint by name.
+    .EXAMPLE
+        Get-MDBlueprint -Name bp1
+        
+        This will return the data for an app named "bp1"
+    .EXAMPLE
+        Get-MDBlueprint bp1
+
+        This will return the data for an app named "bp1"
+    .EXAMPLE
+        Get-MDBlueprint -Category "morpheus"
+
+        This will return all blueprints of the category "morpheus"
+    #>
+    [cmdletbinding()]
     Param (
         # Name of the blueprint
         [Parameter(Position=0)]
         [string]
         $Name,
         $ID,
-        $Category
+        $Category,
+        $Type
         )
 
     Try {
 
-        $API = '/api/app-templates/'
+        $API = '/api/blueprints/'
         $var = @()
 
         #API lookup
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | Select-Object  -ExpandProperty appTemplates 
+        ConvertFrom-Json | Select-Object  -ExpandProperty blueprints 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Category $Category
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Category $Category -Type $Type
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -318,6 +379,56 @@ Function Get-MDBlueprint {
     }
 
 # AUTOMATION
+
+Function Get-MDTask {
+    <#
+    .Synopsis
+       Get all tasks from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one task based on the switch selection of Name, ID, TaskType. 
+       Name can be used from position 0 without the switch to get a specific task by name.
+    .EXAMPLE
+        Get-MDTask -Name task1
+        
+        This will return the data for a task named "task1"
+    .EXAMPLE
+        Get-MDTask task1
+        
+        This will return the data for a task named "task1"
+    .EXAMPLE
+        Get-MDTask -TaskType "Ansible Playbook"
+
+        This will return all tasks of the task type "Ansible Playbook"
+    #>
+    [cmdletbinding()]
+    Param (
+        # Name of the Task
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $TaskType
+        )
+
+        $API = '/api/tasks/'
+        $var = @()
+
+        #API lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+        ConvertFrom-Json | Select-Object  -ExpandProperty task* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
+        
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
+            }
+
+    return $var
+
+    }
+
 Function Get-MDPowerSchedule {
     Param (
         # Name of the Power Schedule
@@ -348,35 +459,6 @@ Function Get-MDPowerSchedule {
     Catch {
         Write-Host "Failed to retreive any power schedules." -ForegroundColor Red
         }
-    }
-
-Function Get-MDTask {
-    Param (
-        # Name of the Task
-        [Parameter(Position=0)]
-        [string]
-        $Name,
-        $ID,
-        $TaskType
-        )
-
-        $API = '/api/tasks/'
-        $var = @()
-
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | Select-Object  -ExpandProperty task* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
-        
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
-            }
-
-    return $var
-
     }
 
 Function Get-MDTaskType {
