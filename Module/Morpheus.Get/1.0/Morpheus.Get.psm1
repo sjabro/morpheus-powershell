@@ -51,6 +51,7 @@ Function Get-MDBilling {
         $defaultDisplaySet = 'accountId', 'Name', 'Price'
 
         #API lookup
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty bill* 
 
@@ -99,6 +100,7 @@ Function Get-MDHistory {
             }
 
         #API lookup
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty process* 
 
@@ -224,17 +226,15 @@ Function Get-MDInstance {
                 $var = @()    
 
                 #API lookup
+                Write-Progress -Activity "Collecting" -Status 'In Progress...'
                 $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
                 ConvertFrom-Json | Select-Object  -ExpandProperty instance*
 
                 #User flag lookup
                 $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
-                $count = 0
-                $itemCount = $var.count 
+
                 #Give this object a unique typename
                 Foreach ($Object in $var) { 
-                    $count = $count + 1
-                    Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
                     $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances')
                     }
 
@@ -307,6 +307,7 @@ Function Get-MDApp {
             $var = @()
             
             #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
             $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
             ConvertFrom-Json | Select-Object  -ExpandProperty app* 
 
@@ -364,6 +365,7 @@ Function Get-MDBlueprint {
         $var = @()
 
         #API lookup
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty blueprints 
 
@@ -466,6 +468,7 @@ Function Get-MDTask {
                     return $return
                 }else{
                     #API lookup
+                    Write-Progress -Activity "Collecting" -Status 'In Progress...'
                     $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
                     ConvertFrom-Json | Select-Object  -ExpandProperty task* 
 
@@ -520,6 +523,7 @@ Function Get-MDWorkflow {
         $var = @()
 
         #User Lookup
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object   -ExpandProperty task* 
 
@@ -541,6 +545,27 @@ Function Get-MDWorkflow {
     }  
     
 Function Get-MDPowerSchedule {
+    <#
+    .Synopsis
+       Get all power schedules from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one power schedules based on the switch selection of Name, ID, Enabled. 
+       Name can be used from position 0 without the switch to get a specific power schedule by name.
+
+    .EXAMPLE
+        Get-MDPowerSchedule
+        
+        This will return the data for all Power Schedules
+    .EXAMPLE
+        Get-MDPowerSchedule ps1
+        
+        This will return the data for a Power Schedule named "ps1"
+    .EXAMPLE
+        Get-MDPowerSchedule -Enabled True
+
+        This will return all Power Schedules that are enabled
+
+    #>
     Param (
         # Name of the Power Schedule
         [Parameter(Position=0)]
@@ -554,6 +579,7 @@ Function Get-MDPowerSchedule {
         $var = @()
 
         #API lookup
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty schedule* 
 
@@ -573,6 +599,41 @@ Function Get-MDPowerSchedule {
     }
 
 Function Get-MDTaskType {
+    <#
+    .Synopsis
+       Get all task types from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one task type based on the switch selection of Name, ID. 
+       Name can be used from position 0 without the switch to get a specific task type by name.
+
+        Available task types:
+            - Ansible Playbook
+            - Ansible Tower Job
+            - Chef bootstrap
+            - Email
+            - Groovy Script
+            - HTTP
+            - Javascript
+            - jRuby Script
+            - Library Script
+            - Library Template
+            - PowerShell Script
+            - Puppet Agent Install
+            - Python Script
+            - Restart
+            - Shell Script
+            - vRealize Orchestrator Workflow
+
+    .EXAMPLE
+        Get-MDTaskType
+        
+        This will return the data for all task types
+    .EXAMPLE
+        Get-MDTaskType Email
+        
+        This will return the data for a task type named "Email"
+
+    #>
     Param (
         # Name of the Task Type
         [Parameter(Position=0)]
@@ -587,6 +648,7 @@ Function Get-MDTaskType {
         $var = @()
 
         #API lookup
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty task* 
 
@@ -607,6 +669,31 @@ Function Get-MDTaskType {
     }
 
 Function Get-MDVirtualImage {
+    <#
+    .Synopsis
+       Get all virtual images from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one virtual image based on the switch selection of Name, ID, ImageType and Uploaded. 
+       Name can be used from position 0 without the switch to get a specific virtual image by name.
+
+    .EXAMPLE
+        Get-MDVirtualImage
+        
+        This will return the data for all Power Schedules
+    .EXAMPLE
+        Get-MDVirtualImage ps1
+        
+        This will return the data for a Power Schedule named "ps1"
+    .EXAMPLE
+        Get-MDVirtualImage -ImageType ami
+
+        This will return all virtual images of the ami type
+    .EXAMPLE
+        Get-MDVirtualImage -Enabled True
+
+        This will return all Power Schedules that are enabled
+
+    #>
     Param (
         # Name of the Virtual Image
         [Parameter(Position=0)]
@@ -623,7 +710,8 @@ Function Get-MDVirtualImage {
         $var = @()
 
         #User Lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object   -ExpandProperty virtualImage* 
 
         #User flag lookup
@@ -651,6 +739,31 @@ Function Get-MDVirtualImage {
 # ██ ██   ████ ██      ██   ██ ██   ██ ███████    ██    ██   ██  ██████   ██████    ██     ██████  ██   ██ ███████ 
 
 Function Get-MDCloud {
+    <#
+    .Synopsis
+       Get all clouds from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one clouds based on the switch selection of Name, ID, or Group 
+       Name can be used from position 0 without the switch to get a specific cloud by name.
+
+    .EXAMPLE
+        Get-MDVirtualImage
+        
+        This will return the data for all Power Schedules
+    .EXAMPLE
+        Get-MDVirtualImage ps1
+        
+        This will return the data for a Power Schedule named "ps1"
+    .EXAMPLE
+        Get-MDVirtualImage -ImageType ami
+
+        This will return all virtual images of the ami type
+    .EXAMPLE
+        Get-MDVirtualImage -Enabled True
+
+        This will return all Power Schedules that are enabled
+
+    #>
     [cmdletbinding()]
     Param (
         # Name of the Cloud
