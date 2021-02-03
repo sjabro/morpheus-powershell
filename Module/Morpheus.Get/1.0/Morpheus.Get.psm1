@@ -52,7 +52,7 @@ Function Get-MDBilling {
 
         #API lookup
         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API  + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty bill* 
 
         #User flag lookup
@@ -101,7 +101,7 @@ Function Get-MDHistory {
 
         #API lookup
         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty process* 
 
         #User flag lookup
@@ -227,7 +227,7 @@ Function Get-MDInstance {
 
                 #API lookup
                 Write-Progress -Activity "Collecting" -Status 'In Progress...'
-                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
                 ConvertFrom-Json | Select-Object  -ExpandProperty instance*
 
                 #User flag lookup
@@ -308,7 +308,7 @@ Function Get-MDApp {
             
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
             ConvertFrom-Json | Select-Object  -ExpandProperty app* 
 
             #User flag lookup
@@ -366,7 +366,7 @@ Function Get-MDBlueprint {
 
         #API lookup
         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty blueprints 
 
         #User flag lookup
@@ -524,7 +524,7 @@ Function Get-MDWorkflow {
 
         #User Lookup
         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object   -ExpandProperty task* 
 
         #User flag lookup
@@ -580,7 +580,7 @@ Function Get-MDPowerSchedule {
 
         #API lookup
         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty schedule* 
 
         #User flag lookup
@@ -649,7 +649,7 @@ Function Get-MDTaskType {
 
         #API lookup
         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty task* 
 
         #User flag lookup
@@ -781,7 +781,7 @@ Function Get-MDGroup {
 
         #API lookup
         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | select-object -ExpandProperty Groups* 
 
         $Groups = $Group
@@ -865,7 +865,7 @@ Function Get-MDCloud {
                     Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
 
                     #API lookup
-                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
                     ConvertFrom-Json | Select-Object  -ExpandProperty zone* 
 
                     #$Groups = $Group
@@ -883,7 +883,7 @@ Function Get-MDCloud {
             }else{
                 #API lookup
                 Write-Progress -Activity "Collecting" -Status 'In Progress...'
-                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API  + "?max=10000") -Headers $Header |
                 ConvertFrom-Json | Select-Object  -ExpandProperty zone*
 
                 #User flag lookup
@@ -916,7 +916,7 @@ Function Get-MDServer {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty server* 
 
         #User flag lookup
@@ -949,7 +949,7 @@ Function Get-MDNetwork {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object   -ExpandProperty Networks* 
 
         $Groups = $Group
@@ -1002,7 +1002,7 @@ Function Get-MDCypher {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty cypher* 
 
         #User flag lookup
@@ -1053,7 +1053,7 @@ Function Get-MDAccount {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object -ExpandProperty account* 
 
         #User flag lookup
@@ -1085,7 +1085,7 @@ Function Get-MDBuild {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json
 
     return $var
@@ -1109,7 +1109,7 @@ Function Get-MDPlan {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty servicePlan* 
         
         #User flag lookup
@@ -1144,7 +1144,7 @@ Function Get-MDPolicy {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty policies 
 
         #User flag lookup
@@ -1176,7 +1176,7 @@ Function Get-MDRole {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty role* 
 
         #User flag lookup
@@ -1217,7 +1217,7 @@ Function Get-MDUser {
         #User Lookup
         foreach ($a in $accounts) {
             $API = "/api/accounts/$a/users"
-            $obj = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+            $obj = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
             ConvertFrom-Json | Select-Object   -ExpandProperty user* 
             $var += $obj
             }

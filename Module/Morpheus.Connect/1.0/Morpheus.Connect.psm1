@@ -55,7 +55,7 @@ Function Connect-Morpheus {
     # Create the body for the post
     $postBody = @{
         grant_type = "password"
-        client_id = "morph-api"
+        client_id = "morph-customer"
         scope = "write"
         username = $Credential.UserName
         password = $Credential.GetNetworkCredential().Password
