@@ -1053,6 +1053,11 @@
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
+							<Label>Type</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
 							<Label>Tasks</Label>
 							<Width>20</Width>
 							<Alignment>Left</Alignment>
@@ -1071,6 +1076,9 @@
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Type</PropertyName>
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>tasks</PropertyName>

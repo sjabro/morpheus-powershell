@@ -1,5 +1,7 @@
 ﻿#Set Environment Vars
 $FormatEnumerationLimit = 8
+$Host.PrivateData.ProgressBackgroundColor="DarkGreen"
+$Host.PrivateData.ProgressForegroundColor="Black"
 
 
 #  █████  ██    ██ ████████ ██   ██ ███████ ███    ██ ████████ ██  ██████  █████  ████████ ██  ██████  ███    ██ 
@@ -227,9 +229,12 @@ Function Get-MDInstance {
 
                 #User flag lookup
                 $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
-
+                $count = 0
+                $itemCount = $var.count 
                 #Give this object a unique typename
                 Foreach ($Object in $var) { 
+                    $count = $count + 1
+                    Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
                     $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances')
                     }
 
@@ -424,28 +429,117 @@ Function Get-MDTask {
         [string]
         $Name,
         $ID,
-        $TaskType
+        $TaskType,
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
         )
 
-        $API = '/api/tasks/'
-        $var = @()
+        process {
 
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-        ConvertFrom-Json | Select-Object  -ExpandProperty task* 
+        # Set parameters for flag check via pipeline
 
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
-        
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
+                $API = '/api/tasks/'
+                $return = @()
+                $var = @()
+                $count = 0
+                $itemCount = ($InputObject.tasks).count
+                if ($InputObject){
+                    foreach ($task in $InputObject.tasks){
+                        $ID = $task
+                        $count = $count + 1
+                        Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
+                        #API lookup
+                        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+                        ConvertFrom-Json | Select-Object  -ExpandProperty task* 
+
+                        #User flag lookup
+                        $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
+                        
+                        #Give this object a unique typename
+                        Foreach ($Object in $var) {
+                            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
+                            $return += $Object
+                            }
+                        }
+                    return $return
+                }else{
+                    #API lookup
+                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+                    ConvertFrom-Json | Select-Object  -ExpandProperty task* 
+
+                    #User flag lookup
+                    $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
+
+                    #Give this object a unique typename
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
+                        }
+                    }
+                return $var
+                }
             }
 
-    return $var
+Function Get-MDWorkflow {
+    <#
+    .Synopsis
+       Get all workflows from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one workflow based on the switch selection of Name, ID, Task. 
+       Name can be used from position 0 without the switch to get a specific workflow by name.
+       Utilizing the -Task parameter you can get all workflows that contain that task but the task id.
 
-    }
+    .EXAMPLE
+        Get-MDWorkflow -Name wf1
+        
+        This will return the data for a workflow named "wf1"
+    .EXAMPLE
+        Get-MDWorkflow task1
+        
+        This will return the data for a workflow named "wf1"
+    .EXAMPLE
+        Get-MDWorkflow -Task 100
 
+        This will return all workflows with the task of id 100 in them
+    #>
+    [cmdletbinding()]
+    Param (
+        # Name of the Workflow
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        $Type,
+        $Task
+        )
+    
+    Try {
+    
+        $API = '/api/task-sets/'
+        $var = @()
+
+        #User Lookup
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | Select-Object   -ExpandProperty task* 
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Type $Type -Task $Task
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Workflow')
+            }
+
+        return $var
+
+        }
+    Catch {
+        Write-Host "Failed to retreive any workflows." -ForegroundColor Red
+        }
+
+    }  
+    
 Function Get-MDPowerSchedule {
     Param (
         # Name of the Power Schedule
@@ -511,42 +605,6 @@ Function Get-MDTaskType {
         Write-Host "Failed to retreive any task types." -ForegroundColor Red
         }
     }
-
-Function Get-MDWorkflow {
-    Param (
-        # Name of the Workflow
-        [Parameter(Position=0)]
-        [string]
-        $Name,
-        $ID,
-        $Task
-        )
-    
-    Try {
-    
-        $API = '/api/task-sets/'
-        $var = @()
-
-        #User Lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | Select-Object   -ExpandProperty task* 
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Task $Task
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Workflow')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any workflows." -ForegroundColor Red
-        }
-
-    }  
 
 Function Get-MDVirtualImage {
     Param (
