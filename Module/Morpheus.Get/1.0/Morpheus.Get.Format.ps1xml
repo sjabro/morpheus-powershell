@@ -313,12 +313,17 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
-							<Width>30</Width>
+							<Width>20</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Location</Label>
-							<Width>30</Width>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Type</Label>
+							<Width>15</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -343,6 +348,11 @@
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>Location</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.zoneType.name
+									</ScriptBlock>
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>serverCount</PropertyName>

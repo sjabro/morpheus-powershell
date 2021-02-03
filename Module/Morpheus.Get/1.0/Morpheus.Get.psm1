@@ -131,14 +131,14 @@ Function Get-MDHistory {
 # This section contains functions for getting objects from the Provisioning primary tab
 #
 # CURRENT CAPABILITIES:
-# 1. Instances: Get-MDInstance
-# 2. Apps
-# 3. Blueprints
-# 4. Automation: Tasks
-# 5. Automation: Task Types
-# 6. Automation: Workflows
-# 7. Automation: Power Schedules
-# 8. Virtual Images
+# 1. Instances:                     Get-MDInstance
+# 2. Apps:                          Get-MDApp
+# 3. Blueprints:                    Get-MDBlueprint
+# 4. Automation - Tasks:            Get-MDTask
+# 5. Automation - Task Types:       Get-MDTaskTypes
+# 6. Automation - Workflows:        Get-MDWorkflows
+# 7. Automation - Power Schedules:  Get-MDPowerSchedule
+# 8. Virtual Images:                Get-MDVirtualImages
 #
 # TO BE COMPLETED:
 # 1. Library: Instance Types
@@ -738,6 +738,70 @@ Function Get-MDVirtualImage {
 # ██ ██  ██ ██ ██      ██   ██ ██   ██      ██    ██    ██   ██ ██    ██ ██         ██    ██    ██ ██   ██ ██      
 # ██ ██   ████ ██      ██   ██ ██   ██ ███████    ██    ██   ██  ██████   ██████    ██     ██████  ██   ██ ███████ 
 
+# This section contains functions for getting objects from the Infrastructure primary tab
+#
+# CURRENT CAPABILITIES:
+# 1. Groups: Get-MDGroup
+# 2. Clouds: Get-MDCloud
+# 3. 
+
+Function Get-MDGroup {
+    <#
+    .Synopsis
+       Get all groups from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one groups based on the switch selection of Name 
+       Name can be used from position 0 without the switch to get a specific cloud by name.
+
+    .EXAMPLE
+        Get-MDGroup
+        
+        This will return the data for all clouds
+    .EXAMPLE
+        Get-MDGroup cloud1
+        
+        This will return the data for a cloud named "cloud1"
+    .EXAMPLE
+        Get-MDGroup -Group "developers"
+
+        This will return all clouds attached to the group "developers"
+
+    #>
+    Param (
+        # Name of the Group
+        [Parameter(Position=0)]
+        [string]
+        $Name
+        )
+
+    Try {
+
+        $API = '/api/groups/'
+        $var = @()
+
+        #API lookup
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+        ConvertFrom-Json | select-object -ExpandProperty Groups* 
+
+        $Groups = $Group
+
+        #User flag lookup
+        $var = Check-Flags -var $var -Name $Name
+
+        #Give this object a unique typename
+        Foreach ($Object in $var) {
+            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Groups')
+            }
+
+        return $var
+        }
+    Catch {
+        Write-Host "Failed to retreive any networks." -ForegroundColor Red
+        }
+
+    }
+
 Function Get-MDCloud {
     <#
     .Synopsis
@@ -745,23 +809,30 @@ Function Get-MDCloud {
     .DESCRIPTION
        Gets all or one clouds based on the switch selection of Name, ID, or Group 
        Name can be used from position 0 without the switch to get a specific cloud by name.
+       Can accept pipeline input from the Get-MDGroup function
 
     .EXAMPLE
-        Get-MDVirtualImage
+        Get-MDCloud
         
-        This will return the data for all Power Schedules
+        This will return the data for all clouds
     .EXAMPLE
-        Get-MDVirtualImage ps1
+        Get-MDCloud cloud1
         
-        This will return the data for a Power Schedule named "ps1"
+        This will return the data for a cloud named "cloud1"
     .EXAMPLE
-        Get-MDVirtualImage -ImageType ami
+        Get-MDCloud -Group "developers"
 
-        This will return all virtual images of the ami type
+        This will return all clouds attached to the group "developers"
+
     .EXAMPLE
-        Get-MDVirtualImage -Enabled True
+    Get-MDGroup "Developers" | Get-MDCloud
 
-        This will return all Power Schedules that are enabled
+    This will get the object of the group "developers" and pipe that object to Get-MDCloud. This will return all clouds for the group.
+
+    .EXAMPLE
+    Get-MDGroup "Developers" | Get-MDCloud -CloudType "Amazon"
+
+    This will get the object of the group "developers" and pipe that object to Get-MDCloud. This will return all clouds of type "Amazon" for the group.
 
     #>
     [cmdletbinding()]
@@ -771,34 +842,60 @@ Function Get-MDCloud {
         [string]
         $Name,
         $ID,
-        $Group
+        $CloudType,
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
         )
 
-    Try {
+    process{
+        
+    # Set parameters for flag check via pipeline
 
-        $API = '/api/zones/'
-        $var = @()
+            $API = '/api/zones/'
+            $var = @()
+            $return = @()
+            $count = 0
 
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-        ConvertFrom-Json | Select-Object  -ExpandProperty zone* 
+            if ($InputObject){
+                $itemCount = ($InputObject.zones).count
+                foreach ($cloud in $InputObject.zones){
+                    $ID = $cloud.ID
+                    $count = $count + 1
+                    Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
 
-        $Groups = $Group
+                    #API lookup
+                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+                    ConvertFrom-Json | Select-Object  -ExpandProperty zone* 
 
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Groups $Groups
+                    #$Groups = $Group
 
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clouds')
-            }
+                    #User flag lookup
+                    $var = Check-Flags -var $var -Name $Name -ID $ID -CloudType $CloudType
 
-        return $var
+                    #Give this object a unique typename
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clouds')
+                        $return += $Object
+                        }
+                    }
+                return $return
+            }else{
+                #API lookup
+                Write-Progress -Activity "Collecting" -Status 'In Progress...'
+                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
+                ConvertFrom-Json | Select-Object  -ExpandProperty zone*
+
+                #User flag lookup
+                $var = Check-Flags -var $var -Name $Name -ID $ID -CloudType $CloudType
+
+                #Give this object a unique typename
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clouds')
+                    }
+                }
+            return $var
         }
-    Catch {
-        Write-Host "Failed to retreive any clouds." -ForegroundColor Red
-        }
-
     }                                                                                                                
 
 Function Get-MDServer {
@@ -872,41 +969,6 @@ Function Get-MDNetwork {
         }
 
     }
-
-    Function Get-MDGroup {
-        Param (
-            # Name of the Group
-            [Parameter(Position=0)]
-            [string]
-            $Name
-            )
-    
-        Try {
-    
-            $API = '/api/groups/'
-            $var = @()
-    
-            #API lookup
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
-            ConvertFrom-Json | select-object -ExpandProperty Groups* 
-    
-            $Groups = $Group
-    
-            #User flag lookup
-            $var = Check-Flags -var $var -Name $Name
-    
-            #Give this object a unique typename
-            Foreach ($Object in $var) {
-                $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Groups')
-                }
-    
-            return $var
-            }
-        Catch {
-            Write-Host "Failed to retreive any networks." -ForegroundColor Red
-            }
-    
-        }
 
 # ██       ██████   ██████  ███████ 
 # ██      ██    ██ ██       ██      
