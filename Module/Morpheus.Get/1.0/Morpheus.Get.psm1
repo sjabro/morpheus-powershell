@@ -1125,12 +1125,18 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
         $InputObject
         )
 
-    if ($InputObject.zoneType){
-        $zoneId = $InputObject.id
-    }
+    $PreviousCommand = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
 
     Try {
 
+        if ($PreviousCommand -like "*Get-MDAccount*"){
+            $tenantId = $InputObject.id
+        }
+    
+        if ($PreviousCommand -like "*Get-MDCloud*"){
+            $zoneId = $InputObject.id
+        }
+        
         $API = '/api/networks/'
         $var = @()
 
@@ -1141,7 +1147,7 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
         $Groups = $Group
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId
+        $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId -TenantID $tenantId
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
