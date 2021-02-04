@@ -440,11 +440,6 @@
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
-							<Label>Type</Label>
-							<Width>20</Width>
-							<Alignment>Left</Alignment>
-						</TableColumnHeader>
-						<TableColumnHeader>
 							<Label>Gateway</Label>
 							<Width>15</Width>
 							<Alignment>Left</Alignment>
@@ -452,6 +447,11 @@
 						<TableColumnHeader>
 							<Label>CIDR</Label>
 							<Width>15</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Type</Label>
+							<Width>20</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>

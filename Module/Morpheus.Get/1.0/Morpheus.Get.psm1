@@ -1092,12 +1092,42 @@ Function Get-MDServer {
             }
         }
 Function Get-MDNetwork {
+<#
+.Synopsis
+    Get all networks from Morpheus appliance
+.DESCRIPTION
+    Gets all or one servers based on the switch selection of Name, ID
+    Name can be used from position 0 without the switch to get a specific server by name.
+    Can accept pipeline input from the Get-MDCloud function
+
+.EXAMPLE
+    Get-MDNetwork
+    
+    This will return the data for all networks
+.EXAMPLE
+    Get-MDNetwork network1
+    
+    This will return the data for a server named "network1"
+
+.EXAMPLE
+Get-MDCloud "cloud1" | Get-MDNetwork
+
+This will get the object of the cloud "cloud1" and pipe that object to Get-MDNetwork. This will return all networks for the group.
+
+#>
     Param (
         # Name of the network
         [Parameter(Position=0)]
         [string]
-        $Name
+        $Name,
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
         )
+
+    if ($InputObject.zoneType){
+        $zoneId = $InputObject.id
+    }
 
     Try {
 
@@ -1111,7 +1141,7 @@ Function Get-MDNetwork {
         $Groups = $Group
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud
+        $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -ZoneId $zoneId
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
