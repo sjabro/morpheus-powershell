@@ -3,6 +3,7 @@
         $var,
         [AllowEmptyString()]$Account,
         [AllowEmptyString()]$AccountID,
+        [AllowEmptyString()]$TenantID,
         [AllowEmptyString()]$Active,
         [AllowEmptyString()]$Authority,
         [AllowEmptyString()]$Category,
@@ -156,6 +157,10 @@
 
     If ($ClusterType) {
         $var = $var | Where-Object { $_.Type.name -like $ClusterType }
+        }
+
+    If ($TenantID) {
+        $var = $var | Where-Object { $_.tenants.id -like $TenantID }
         }
 
     If ($ClusterId) {

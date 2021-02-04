@@ -1096,8 +1096,8 @@ Function Get-MDNetwork {
 .Synopsis
     Get all networks from Morpheus appliance
 .DESCRIPTION
-    Gets all or one servers based on the switch selection of Name, ID
-    Name can be used from position 0 without the switch to get a specific server by name.
+    Gets all or one networks based on the switch selection of Name, ID
+    Name can be used from position 0 without the switch to get a specific network by name.
     Can accept pipeline input from the Get-MDCloud function
 
 .EXAMPLE
@@ -1141,7 +1141,7 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
         $Groups = $Group
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -ZoneId $zoneId
+        $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -1155,6 +1155,75 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
         }
 
     }
+
+Function Get-MDNetworkGroup {
+    <#
+    .Synopsis
+        Get all network groups from Morpheus appliance
+    .DESCRIPTION
+        Gets all or one network groups based on the switch selection of Name, ID
+        Name can be used from position 0 without the switch to get a specific network group by name.
+        Can accept pipeline input from the Get-MDAccount function
+    
+    .EXAMPLE
+        Get-MDNetworkGroup
+        
+        This will return the data for all network groups
+    .EXAMPLE
+        Get-MDNetworkGroup networkgroup1
+        
+        This will return the data for a network group named "networkgroup1"
+    
+    .EXAMPLE
+    Get-MDAccount "account1" | Get-MDNetworkGroup
+    
+    This will get the object of the tenant "tenant1" and pipe that object to Get-MDNetworkGroup. This will return all network groups for the tenant.
+    
+    #>
+        Param (
+            # Name of the network
+            [Parameter(Position=0)]
+            [string]
+            $Name,
+            [Parameter(ValueFromPipeline=$true)]
+            [object]
+            $InputObject
+            )
+
+        $PreviousCommand = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+
+        if ($PreviousCommand -like "*Get-MDAccount*"){
+            $tenantId = $InputObject.id
+        }
+        
+        Write-Output "Account ID: $($tenantId)"
+
+        Try {
+    
+            $API = '/api/networks/groups'
+            $var = @()
+    
+            #API lookup
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+            ConvertFrom-Json | Select-Object -ExpandProperty networkGroups
+    
+            $Groups = $Group
+    
+            #User flag lookup
+            $var = Check-Flags -var $var -Name $Name -ID $ID -TenantID $tenantId
+    
+            #Give this object a unique typename
+            Foreach ($Object in $var) {
+                $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Networks')
+                }
+    
+            return $var
+            }
+        Catch {
+            Write-Host "Failed to retreive any networks." -ForegroundColor Red
+            }
+    
+        }
 
 # ██       ██████   ██████  ███████ 
 # ██      ██    ██ ██       ██      
