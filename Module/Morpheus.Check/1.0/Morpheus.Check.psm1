@@ -9,6 +9,7 @@
         [AllowEmptyString()]$Cloud,
         [AllowEmptyString()]$CloudId,
         [AllowEmptyString()]$CloudType,
+        [AllowEmptyString()]$ClusterType,
         [AllowEmptyString()]$Currency,
         [AllowEmptyString()]$DisplayName,
         [AllowEmptyString()]$Enabled,
@@ -150,6 +151,10 @@
     
     If ($CloudType) {
         $var = $var | Where-Object { $_.zoneType.name -like $CloudType }
+        }
+
+    If ($ClusterType) {
+        $var = $var | Where-Object { $_.Type.name -like $ClusterType }
         }
 
     If ($Type) {

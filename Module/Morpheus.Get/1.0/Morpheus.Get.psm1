@@ -1,6 +1,6 @@
 ﻿#Set Environment Vars
 $FormatEnumerationLimit = 8
-$Host.PrivateData.ProgressBackgroundColor="DarkGreen"
+$Host.PrivateData.ProgressBackgroundColor="DarkCyan"
 $Host.PrivateData.ProgressForegroundColor="Black"
 
 
@@ -744,6 +744,9 @@ Function Get-MDVirtualImage {
 # 1. Groups: Get-MDGroup
 # 2. Clouds: Get-MDCloud
 # 3. 
+#
+# TO BE COMPLETED:
+# 1. Clusters
 
 Function Get-MDGroup {
     <#
@@ -807,7 +810,7 @@ Function Get-MDCloud {
     .Synopsis
        Get all clouds from Morpheus appliance
     .DESCRIPTION
-       Gets all or one clouds based on the switch selection of Name, ID, or Group 
+       Gets all or one clouds based on the switch selection of Name, ID, or CloudType 
        Name can be used from position 0 without the switch to get a specific cloud by name.
        Can accept pipeline input from the Get-MDGroup function
 
@@ -820,9 +823,9 @@ Function Get-MDCloud {
         
         This will return the data for a cloud named "cloud1"
     .EXAMPLE
-        Get-MDCloud -Group "developers"
+        Get-MDCloud -CloudType "Amazon"
 
-        This will return all clouds attached to the group "developers"
+        This will return all clouds of the type "Amazon"
 
     .EXAMPLE
     Get-MDGroup "Developers" | Get-MDCloud
@@ -852,10 +855,10 @@ Function Get-MDCloud {
         
     # Set parameters for flag check via pipeline
 
-            $API = '/api/zones/'
-            $var = @()
-            $return = @()
-            $count = 0
+        $API = '/api/zones/'
+        $var = @()
+        $return = @()
+        $count = 0
 
             if ($InputObject){
                 $itemCount = ($InputObject.zones).count
@@ -898,7 +901,107 @@ Function Get-MDCloud {
         }
     }                                                                                                                
 
+Function Get-MDCluster {
+    <#
+    .Synopsis
+        Get all clusters from Morpheus appliance
+    .DESCRIPTION
+        Gets all or one clouds based on the switch selection of Name, ID, or Type 
+        Name can be used from position 0 without the switch to get a specific cloud by name.
+        Can accept pipeline input from the Get-MDCloud function
+
+    .EXAMPLE
+        Get-MDCluster
+        
+        This will return the data for all clouds
+    .EXAMPLE
+        Get-MDCluster cluster1
+        
+        This will return the data for a cloud named cluster1
+    .EXAMPLE
+        Get-MDCluster -Type "Kubernetes Cluster"
+
+        This will return all clusters of the type "Kubernetes Cluster"
+
+    .EXAMPLE
+    Get-MDCloud "cloud1" | Get-MDCluster
+
+    This will get the object of the cloud "cloud1" and pipe that object to Get-MDCluster. This will return all clusters for the cloud.
+
+    #>
+    [cmdletbinding()]
+    Param (
+        # Name of the cluster
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        $ID,
+        # Parameter help description
+        [Parameter()]
+        [ValidateSet("Kubernetes Cluster","Docker Cluster","AKS Cluster","Combo Cluster","KVM Cluster","EKS Cluster","External Kubernetes Cluster")]
+        [string]
+        $ClusterType,
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
+        )
+
+    process{
+        
+    # Set parameters for flag check via pipeline
+
+            $API = '/api/clusters/'
+            $var = @()
+
+            if ($InputObject.zoneType){
+                $zoneId = $InputObject.id
+            }
+
+            #API lookup
+            Write-Progress -Activity "Collecting..." -Status 'Progress->'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+            ConvertFrom-Json | Select-Object  -ExpandProperty cluster* 
+
+            #User flag lookup
+            $var = Check-Flags -var $var -Name $Name -ID $ID -ClusterType $ClusterType -ZoneId $zoneId
+
+            #Give this object a unique typename
+            Foreach ($Object in $var) {
+                $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clusters')
+                }
+            return $var
+            }
+        }
+
 Function Get-MDServer {
+    <#
+    .Synopsis
+       Get all servers from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one servers based on the switch selection of Name, ID
+       Name can be used from position 0 without the switch to get a specific server by name.
+       Can accept pipeline input from the Get-MDGroup and Get-MDCloud functions
+
+    .EXAMPLE
+        Get-MDServer
+        
+        This will return the data for all servers
+    .EXAMPLE
+        Get-MDServer server1
+        
+        This will return the data for a server named "server1"
+
+    .EXAMPLE
+    Get-MDGroup "Developers" | Get-MDServer
+
+    This will get the object of the group "developers" and pipe that object to Get-MDCloud. This will return all clouds for the group.
+
+    .EXAMPLE
+    Get-MDGroup "Developers" | Get-MDCloud -CloudType "Amazon"
+
+    This will get the object of the group "developers" and pipe that object to Get-MDCloud. This will return all clouds of type "Amazon" for the group.
+
+    #>
     Param (
         # Name of the Server
         [Parameter(Position=0)]
@@ -916,6 +1019,7 @@ Function Get-MDServer {
         $var = @()
 
         #API lookup
+        Write-Progress -Activity "Collecting" -Status 'In Progress...'
         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty server* 
 
