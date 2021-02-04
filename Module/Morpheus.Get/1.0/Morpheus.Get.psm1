@@ -741,12 +741,13 @@ Function Get-MDVirtualImage {
 # This section contains functions for getting objects from the Infrastructure primary tab
 #
 # CURRENT CAPABILITIES:
-# 1. Groups: Get-MDGroup
-# 2. Clouds: Get-MDCloud
-# 3. 
+# 1. Groups:    Get-MDGroup
+# 2. Clouds:    Get-MDCloud
+# 3. Clusters:  Get-MDCluster
+# 4. Servers:   Get-MDServer
 #
 # TO BE COMPLETED:
-# 1. Clusters
+# 1. 
 
 Function Get-MDGroup {
     <#
