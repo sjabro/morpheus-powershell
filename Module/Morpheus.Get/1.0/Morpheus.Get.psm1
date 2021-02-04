@@ -1008,37 +1008,88 @@ Function Get-MDServer {
         [string]
         $Name,
         $ID,
-        $Cloud,
-        $CloudId,
-        $OS
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
         )
 
-    Try {
+    process {
 
         $API = '/api/servers/'
         $var = @()
 
-        #API lookup
-        Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-        ConvertFrom-Json | Select-Object  -ExpandProperty server* 
+        if ($InputObject.zoneType){
+            $zoneId = $InputObject.id
 
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Zone $Cloud -ZoneId $CloudId -OS $OS
+            Try {
 
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+                #API lookup
+                Write-Progress -Activity "Collecting" -Status 'In Progress...'
+                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+                ConvertFrom-Json | Select-Object  -ExpandProperty server* 
+
+                #User flag lookup
+                $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId
+
+                #Give this object a unique typename
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+                    }
+                
+                return $var
+
+                }
+            Catch {
+                Write-Host "Failed to retreive any servers." -ForegroundColor Red
+                }
+            }elseif ($InputObject.workerStats){
+                $count = 0
+                $return = @()
+                $itemCount = ($InputObject.servers).count
+
+                foreach ($Object in $InputObject.servers){
+                    $ID = $object.id
+                    $count = $count + 1
+                    Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
+                    #API lookup
+                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+                    ConvertFrom-Json | Select-Object  -ExpandProperty server* 
+
+                    #User flag lookup
+                    $var = Check-Flags -var $var -Name $Name -ID $ID
+                    
+                    #Give this object a unique typename
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+                        $return += $Object
+                        }
+                    }
+                return $return
+            }else{
+                Try {
+
+                    #API lookup
+                    Write-Progress -Activity "Collecting" -Status 'In Progress...'
+                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+                    ConvertFrom-Json | Select-Object  -ExpandProperty server* 
+    
+                    #User flag lookup
+                    $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId
+    
+                    #Give this object a unique typename
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+                        }
+                    
+                    return $var
+    
+                    }
+                Catch {
+                    Write-Host "Failed to retreive any servers." -ForegroundColor Red
+                    }
+                }
             }
-        
-        return $var
-
         }
-    Catch {
-        Write-Host "Failed to retreive any servers." -ForegroundColor Red
-        }
-    }
-
 Function Get-MDNetwork {
     Param (
         # Name of the network

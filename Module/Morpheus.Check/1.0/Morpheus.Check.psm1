@@ -10,6 +10,7 @@
         [AllowEmptyString()]$CloudId,
         [AllowEmptyString()]$CloudType,
         [AllowEmptyString()]$ClusterType,
+        [AllowEmptyString()]$ClusterId,
         [AllowEmptyString()]$Currency,
         [AllowEmptyString()]$DisplayName,
         [AllowEmptyString()]$Enabled,
@@ -155,6 +156,10 @@
 
     If ($ClusterType) {
         $var = $var | Where-Object { $_.Type.name -like $ClusterType }
+        }
+
+    If ($ClusterId) {
+        $var = $var | where clusterId -like $ClusterId
         }
 
     If ($Type) {
