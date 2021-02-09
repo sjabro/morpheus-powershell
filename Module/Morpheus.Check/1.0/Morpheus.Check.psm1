@@ -32,15 +32,76 @@
         [AllowEmptyString()]$Username,
         [AllowEmptyString()]$Zone,
         [AllowEmptyString()]$ZoneId,
-        [AllowEmptyString()]$Type
+        [AllowEmptyString()]$Type,
+        #Parameter help description
+        [Parameter()]
+        [Object]
+        $InputObject,
+        # Parameter help description
+        [Parameter()]
+        [String]
+        $Construct,
+        # Parameter help description
+        [Parameter()]
+        [string]
+        $PipelineConstruct
+
         )    
 
-    If ($Account) {
-        $var = $var | Where-Object { $_.account.name -like $Account }
+    #Write-Host "Begin check-flags"
+    if ($PipelineConstruct -eq "usersOnly"){
+        $var = $var
+    }else{
+        $var = $var.$construct
+    }
+
+    $return =@()
+
+    #Write-Host "Input Object: $($InputObject)" -ForegroundColor DarkMagenta
+    #Write-Host "Construct: $($construct)" -ForegroundColor DarkMagenta
+    #Write-Host "Pipeline Construct: $($PipelineConstruct)" -ForegroundColor DarkMagenta
+    #Write-Host $var  -ForegroundColor DarkMagenta
+
+    if ($PipelineConstruct){
+        #Write-Host "Found pipeline construct: $($PipelineConstruct)"  -ForegroundColor DarkMagenta
+        # This switch checks for the initial command in the pipeline          
+        switch ($PipelineConstruct){
+            accounts {
+                # This switch checks for the current construct to compare against and the parse the var based on the object layout
+                switch ($construct){
+                    default {
+                        $var = $var | where accountId -Like $InputObject.id
+                    }
+                }
+            }
+            users {
+                switch ($construct){
+                    default {
+                        $var = $var | where id -Like $InputObject.id
+                    }          
+                }
+            }
+            groups {
+                switch ($construct){
+                    instances {
+                        $var = $var | Where-Object { $_.group.id -Like $InputObject.id }
+                    }
+                    default {
+                        $var = $var | Where-Object { $_.groups.id -Like $InputObject.id }
+                    }          
+                }             
+            }
+        }
+    }
+
+    If ($Username) {
+        #Write-Host "Found by username"
+        $var = $var | where username -like $Username
         }
 
-    If ($AccountID){
-        $var = $var | where accountid -like $AccountID
+    If ($Name) {
+        #Write-Host "Found by name"
+        $var = $var | Where-Object name -like $Name
         }
 
     If ($Active){
@@ -103,10 +164,6 @@
         $var = $var | where instanceId -like $InstanceID
         }
 
-    If ($Name) {
-        $var = $var | where name -like $Name
-        }
-
     If ($OS) {
         $var = $var | Where-Object { $_.serverOs.name -like $OS }
         }
@@ -139,10 +196,6 @@
         $var = $var | where userUploaded -like $Uploaded
         }
 
-    If ($Username) {
-        $var = $var | where username -like $Username
-        }
-
     If ($Zone) {
         $var = $var | Where-Object { $_.zone.name -like $Zone }
         }
@@ -159,10 +212,6 @@
         $var = $var | Where-Object { $_.Type.name -like $ClusterType }
         }
 
-    If ($TenantID) {
-        $var = $var | Where-Object { $_.tenants.id -like $TenantID }
-        }
-
     If ($ClusterId) {
         $var = $var | where clusterId -like $ClusterId
         }
@@ -170,9 +219,28 @@
     If ($Type) {
         $var = $var | Where-Object type -like $Type
         }
-
+    
+    #Write-Host "End check-flags"
     return $var
-    }
+}
 
+function Get-PipelineConstruct {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]
+        $PipelineConstruct
+    )
+
+    $SplitString = "-md"
+    $PipelineConstruct = $PipelineConstruct.Split($SplitString)[1]
+    $PipelineConstruct = $PipelineConstruct.Split(" ")[0]
+    $PipelineConstruct = $PipelineConstruct.ToLower() + "s"
+
+    return $PipelineConstruct
+}
+
+Export-ModuleMember -Function Get-PipelineConstruct
+Export-ModuleMember -Variable PipelineConstruct
 Export-ModuleMember -Variable Var
 Export-ModuleMember -Function Check-Flags

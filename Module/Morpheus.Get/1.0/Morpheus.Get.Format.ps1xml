@@ -74,7 +74,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Administration.Tenants</TypeName>
+					<TypeName>Morpheus.Administration.Accounts</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -302,7 +302,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Infrastructure.Clouds</TypeName>
+					<TypeName>Morpheus.Infrastructure.Zones</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -509,7 +509,7 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
-							<Width>20</Width>
+							<Width>15</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -1011,17 +1011,17 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Username</Label>
-							<Width>30</Width>
+							<Width>20</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Email</Label>
-							<Width>50</Width>
+							<Width>30</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Account</Label>
-							<Width>30</Width>
+							<Width>20</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 					</TableHeaders>

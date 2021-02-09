@@ -39,7 +39,10 @@ Function Get-MDBilling {
         [Parameter(Position=0)]
         [string]
         $Name,
-        $AccountID
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
         )
 
     Try {
@@ -56,7 +59,7 @@ Function Get-MDBilling {
         ConvertFrom-Json | Select-Object  -ExpandProperty bill* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -AccountID $AccountID
+        $var = Check-Flags -var $var -Name $Name -InputObject $InputObject
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -182,69 +185,283 @@ Function Get-MDInstance {
     #>
     [cmdletbinding()]
     Param (
-        # Name of the Instance
+        # Name of the object
         [Parameter(Position=0)]
         [string]
         $Name,
-        [Parameter()]
-        [int]
-        $ID,
-        # Name of the cloud
-        [Parameter()]
-        [string]
-        $Cloud,
-        # ID of the cloud
-        [Parameter()]
-        [int]
-        $CloudId,
-        [Parameter()]
-        [string]
-        $Group,
-        [Parameter()]
-        [int]
-        $GroupId,
         # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
-        [object]
+        [System.Object]
         $InputObject
         )
-        
-        process {
 
-            # Set parameters for flag check via pipeline
-            if ($InputObject.zoneType){
-                $Cloud = $InputObject.Name
-                $CloudId = $InputObject.Id
-            }else{
-                $Group = $InputObject.name
-                $GroupID = $InputObject.Id
-            }
+    BEGIN {
 
-            Try {
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = ""
+        $construct = "Instances"
 
-                $API = '/api/instances/'
-                $var = @()    
+        # Initialize var and return
+        $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
 
-                #API lookup
-                Write-Progress -Activity "Collecting" -Status 'In Progress...'
-                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-                ConvertFrom-Json | Select-Object  -ExpandProperty instance*
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+    }
 
-                #User flag lookup
-                $var = Check-Flags -var $var -Name $Name -ID $ID -Cloud $Cloud -CloudId $CloudId -Group $Group -GroupId $GroupId
+    PROCESS {
 
-                #Give this object a unique typename
-                Foreach ($Object in $var) { 
-                    $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances')
+        Try {
+
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
+
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
+
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Check-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
                     }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }           
 
-                return $var
-                }
-            Catch {
-                Write-Host "Failed to retreive any instances." -ForegroundColor Red
-                }
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any instances." -ForegroundColor Red
+            Write-Host $err
             }
         }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}
+
+Function Get-MDServer {
+    <#
+    .Synopsis
+       Get all servers from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one servers based on the switch selection of Name, ID
+       Name can be used from position 0 without the switch to get a specific server by name.
+       Can accept pipeline input from the Get-MDGroup and Get-MDCloud functions
+
+    .EXAMPLE
+        Get-MDServer
+        
+        This will return the data for all servers
+    .EXAMPLE
+        Get-MDServer server1
+        
+        This will return the data for a server named "server1"
+
+    .EXAMPLE
+    Get-MDGroup "Developers" | Get-MDServer
+
+    This will get the object of the group "developers" and pipe that object to Get-MDCloud. This will return all clouds for the group.
+
+    .EXAMPLE
+    Get-MDGroup "Developers" | Get-MDCloud -CloudType "Amazon"
+
+    This will get the object of the group "developers" and pipe that object to Get-MDCloud. This will return all clouds of type "Amazon" for the group.
+
+    #>
+    [cmdletbinding()]
+    Param (
+        # Name of the object
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [System.Object]
+        $InputObject
+        )
+
+    BEGIN {
+
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = "Instances"
+        $construct = "Servers"
+
+        # Initialize var and return
+        $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
+
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+    }
+
+    PROCESS {
+
+        Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
+
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
+
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Check-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }           
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
+            }
+        }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}      
+    # Param (
+    #     # Name of the Server
+    #     [Parameter(Position=0)]
+    #     [string]
+    #     $Name,
+    #     $ID,
+    #     [Parameter(ValueFromPipeline=$true)]
+    #     [object]
+    #     $InputObject
+    #     )
+
+    # process {
+
+    #     $API = '/api/servers/'
+    #     $var = @()
+
+    #     if ($InputObject.zoneType){
+    #         $zoneId = $InputObject.id
+
+    #         Try {
+
+    #             #API lookup
+    #             Write-Progress -Activity "Collecting" -Status 'In Progress...'
+    #             $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+    #             ConvertFrom-Json | Select-Object  -ExpandProperty server* 
+
+    #             #User flag lookup
+    #             $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId
+
+    #             #Give this object a unique typename
+    #             Foreach ($Object in $var) {
+    #                 $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+    #                 }
+                
+    #             return $var
+
+    #             }
+    #         Catch {
+    #             Write-Host "Failed to retreive any servers." -ForegroundColor Red
+    #             }
+    #         }elseif ($InputObject.workerStats){
+    #             $count = 0
+    #             $return = @()
+    #             $itemCount = ($InputObject.servers).count
+
+    #             foreach ($Object in $InputObject.servers){
+    #                 $ID = $object.id
+    #                 $count = $count + 1
+    #                 Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
+    #                 #API lookup
+    #                 $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+    #                 ConvertFrom-Json | Select-Object  -ExpandProperty server* 
+
+    #                 #User flag lookup
+    #                 $var = Check-Flags -var $var -Name $Name -ID $ID
+                    
+    #                 #Give this object a unique typename
+    #                 Foreach ($Object in $var) {
+    #                     $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+    #                     $return += $Object
+    #                     }
+    #                 }
+    #             return $return
+    #         }else{
+    #             Try {
+
+    #                 #API lookup
+    #                 Write-Progress -Activity "Collecting" -Status 'In Progress...'
+    #                 $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+    #                 ConvertFrom-Json | Select-Object  -ExpandProperty server* 
+    
+    #                 #User flag lookup
+    #                 $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId
+    
+    #                 #Give this object a unique typename
+    #                 Foreach ($Object in $var) {
+    #                     $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+    #                     }
+                    
+    #                 return $var
+    
+    #                 }
+    #             Catch {
+    #                 Write-Host "Failed to retreive any servers." -ForegroundColor Red
+    #                 }
+    #             }
+    #         }
+    #     }
 
 Function Get-MDApp {
     <#
@@ -771,40 +988,89 @@ Function Get-MDGroup {
         This will return all clouds attached to the group "developers"
 
     #>
+    [cmdletbinding()]
     Param (
-        # Name of the Group
+        # Name of the object
         [Parameter(Position=0)]
         [string]
-        $Name
+        $Name,
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [System.Object]
+        $InputObject
         )
 
-    Try {
+    BEGIN {
 
-        $API = '/api/groups/'
+        # Set HTML config module
+        $zone = "Infrastructure"
+        $subZone = ""
+        $construct = "Groups"
+
+        # Initialize var and return
         $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
 
-        #API lookup
-        Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-        ConvertFrom-Json | select-object -ExpandProperty Groups* 
-
-        $Groups = $Group
-
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Groups')
-            }
-
-        return $var
-        }
-    Catch {
-        Write-Host "Failed to retreive any networks." -ForegroundColor Red
-        }
-
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
     }
+
+    PROCESS {
+
+        Try {
+
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
+
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
+
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Check-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }             
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any instances." -ForegroundColor Red
+            Write-Host $err
+            }
+        }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}
+
 
 Function Get-MDCloud {
     <#
@@ -841,66 +1107,85 @@ Function Get-MDCloud {
     #>
     [cmdletbinding()]
     Param (
-        # Name of the Cloud
+        # Name of the object
         [Parameter(Position=0)]
         [string]
         $Name,
-        $ID,
-        $CloudType,
+        # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
-        [object]
+        [System.Object]
         $InputObject
         )
 
-    process{
-        
-    # Set parameters for flag check via pipeline
+    BEGIN {
 
-        $API = '/api/zones/'
+        # Set HTML config module
+        $zone = "Infrastructure"
+        $subZone = ""
+        $construct = "Zones"
+
+        # Initialize var and return
         $var = @()
         $return = @()
-        $count = 0
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
 
-            if ($InputObject){
-                $itemCount = ($InputObject.zones).count
-                foreach ($cloud in $InputObject.zones){
-                    $ID = $cloud.ID
-                    $count = $count + 1
-                    Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+    }
 
-                    #API lookup
-                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-                    ConvertFrom-Json | Select-Object  -ExpandProperty zone* 
+    PROCESS {
 
-                    #$Groups = $Group
+        Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
 
-                    #User flag lookup
-                    $var = Check-Flags -var $var -Name $Name -ID $ID -CloudType $CloudType
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
 
-                    #Give this object a unique typename
-                    Foreach ($Object in $var) {
-                        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clouds')
-                        $return += $Object
-                        }
-                    }
-                return $return
-            }else{
-                #API lookup
-                Write-Progress -Activity "Collecting" -Status 'In Progress...'
-                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API  + "?max=10000") -Headers $Header |
-                ConvertFrom-Json | Select-Object  -ExpandProperty zone*
-
-                #User flag lookup
-                $var = Check-Flags -var $var -Name $Name -ID $ID -CloudType $CloudType
-
-                #Give this object a unique typename
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Check-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            
+            #Give this object a unique typename
+            if ($subzone -eq ""){
                 Foreach ($Object in $var) {
-                    $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clouds')
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
                     }
-                }
-            return $var
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }             
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
+            }
         }
-    }                                                                                                                
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}                                                                                                                
 
 Function Get-MDCluster {
     <#
@@ -932,165 +1217,86 @@ Function Get-MDCluster {
     #>
     [cmdletbinding()]
     Param (
-        # Name of the cluster
+        # Name of the object
         [Parameter(Position=0)]
         [string]
         $Name,
-        $ID,
-        # Parameter help description
-        [Parameter()]
-        [ValidateSet("Kubernetes Cluster","Docker Cluster","AKS Cluster","Combo Cluster","KVM Cluster","EKS Cluster","External Kubernetes Cluster")]
-        [string]
-        $ClusterType,
+        # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
-        [object]
+        [System.Object]
         $InputObject
         )
 
-    process{
-        
-    # Set parameters for flag check via pipeline
+    BEGIN {
 
-            $API = '/api/clusters/'
-            $var = @()
+        # Set HTML config module
+        $zone = "Infrastructure"
+        $subZone = ""
+        $construct = "Clusters"
 
-            if ($InputObject.zoneType){
-                $zoneId = $InputObject.id
-            }
+        # Initialize var and return
+        $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
+
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+    }
+
+    PROCESS {
+
+        Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
 
             #API lookup
-            Write-Progress -Activity "Collecting..." -Status 'Progress->'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-            ConvertFrom-Json | Select-Object  -ExpandProperty cluster* 
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
 
             #User flag lookup
-            $var = Check-Flags -var $var -Name $Name -ID $ID -ClusterType $ClusterType -ZoneId $zoneId
-
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Check-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            
             #Give this object a unique typename
-            Foreach ($Object in $var) {
-                $Object.PSObject.TypeNames.Insert(0,'Morpheus.Infrastructure.Clusters')
-                }
-            return $var
-            }
-        }
-
-Function Get-MDServer {
-    <#
-    .Synopsis
-       Get all servers from Morpheus appliance
-    .DESCRIPTION
-       Gets all or one servers based on the switch selection of Name, ID
-       Name can be used from position 0 without the switch to get a specific server by name.
-       Can accept pipeline input from the Get-MDGroup and Get-MDCloud functions
-
-    .EXAMPLE
-        Get-MDServer
-        
-        This will return the data for all servers
-    .EXAMPLE
-        Get-MDServer server1
-        
-        This will return the data for a server named "server1"
-
-    .EXAMPLE
-    Get-MDGroup "Developers" | Get-MDServer
-
-    This will get the object of the group "developers" and pipe that object to Get-MDCloud. This will return all clouds for the group.
-
-    .EXAMPLE
-    Get-MDGroup "Developers" | Get-MDCloud -CloudType "Amazon"
-
-    This will get the object of the group "developers" and pipe that object to Get-MDCloud. This will return all clouds of type "Amazon" for the group.
-
-    #>
-    Param (
-        # Name of the Server
-        [Parameter(Position=0)]
-        [string]
-        $Name,
-        $ID,
-        [Parameter(ValueFromPipeline=$true)]
-        [object]
-        $InputObject
-        )
-
-    process {
-
-        $API = '/api/servers/'
-        $var = @()
-
-        if ($InputObject.zoneType){
-            $zoneId = $InputObject.id
-
-            Try {
-
-                #API lookup
-                Write-Progress -Activity "Collecting" -Status 'In Progress...'
-                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-                ConvertFrom-Json | Select-Object  -ExpandProperty server* 
-
-                #User flag lookup
-                $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId
-
-                #Give this object a unique typename
+            if ($subzone -eq ""){
                 Foreach ($Object in $var) {
-                    $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
                     }
-                
-                return $var
-
-                }
-            Catch {
-                Write-Host "Failed to retreive any servers." -ForegroundColor Red
-                }
-            }elseif ($InputObject.workerStats){
-                $count = 0
-                $return = @()
-                $itemCount = ($InputObject.servers).count
-
-                foreach ($Object in $InputObject.servers){
-                    $ID = $object.id
-                    $count = $count + 1
-                    Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
-                    #API lookup
-                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-                    ConvertFrom-Json | Select-Object  -ExpandProperty server* 
-
-                    #User flag lookup
-                    $var = Check-Flags -var $var -Name $Name -ID $ID
-                    
-                    #Give this object a unique typename
+                }else{
                     Foreach ($Object in $var) {
-                        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
                         $return += $Object
-                        }
-                    }
-                return $return
-            }else{
-                Try {
+                        }                  
+                }             
 
-                    #API lookup
-                    Write-Progress -Activity "Collecting" -Status 'In Progress...'
-                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-                    ConvertFrom-Json | Select-Object  -ExpandProperty server* 
-    
-                    #User flag lookup
-                    $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId
-    
-                    #Give this object a unique typename
-                    Foreach ($Object in $var) {
-                        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Instances.Servers')
-                        }
-                    
-                    return $var
-    
-                    }
-                Catch {
-                    Write-Host "Failed to retreive any servers." -ForegroundColor Red
-                    }
-                }
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
             }
         }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}      
+
 Function Get-MDNetwork {
 <#
 .Synopsis
@@ -1129,14 +1335,18 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
 
     Try {
 
-        if ($PreviousCommand -like "*Get-MDAccount*"){
-            $tenantId = $InputObject.id
-        }
+        # if ($PreviousCommand -like "*Get-MDAccount*"){
+        #     $AccountId = $InputObject.id
+        # }
     
-        if ($PreviousCommand -like "*Get-MDCloud*"){
-            $zoneId = $InputObject.id
-        }
+        # if ($PreviousCommand -like "*Get-MDCloud*"){
+        #     $zoneId = $InputObject.id
+        # }
+        # if ($InputObject){
+        #     $PipelineId = $InputObject.ID
+        # }Write-Output "Input Object: $($InputObject)"
         
+
         $API = '/api/networks/'
         $var = @()
 
@@ -1147,7 +1357,7 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
         $Groups = $Group
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -ZoneId $zoneId -TenantID $tenantId
+        $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject #-ZoneId $zoneId -AccountID $AccountId
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -1302,39 +1512,72 @@ Function Get-MDAccount {
         # Name of the account
         [Parameter(Position=0)]
         [string]
-        $Name,
-        $ID,
-        $Currency,
-        $Active
+        $Name
         )
 
-    Try {
+    BEGIN {
+        # Configure these variables based on function
+        # XML config modules
+        $zone = "Administration"
+        $subZone = ""
+        $construct = "accounts"
 
-        $API = '/api/accounts/'
-        $var = @()
+        # Function name
+        $command = "Get-MDaccount"
 
-        #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-        ConvertFrom-Json | Select-Object -ExpandProperty account* 
+        # Begin variablized calls
+        if ($PipelineConstruct -eq "users"){
 
-        #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Currency $Currency -Active $Active
+        }else{
+        Write-Verbose "Start: $($command)"
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "PSCallStack: $($PipelineConstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline construct: $($PipelineConstruct)"
+        }
+    }
 
-        #Give this object a unique typename
-        Foreach ($Object in $var) { 
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.Tenants')
+    PROCESS {
+        Try {
+
+            $API = "/api/$construct/"
+            $var = @()
+            $return = @()
+
+            #API lookup
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+            ConvertFrom-Json # | Select-Object -ExpandProperty account* 
+
+            #User flag lookup
+            $var = Check-Flags -var $var -Name $Name -Construct $construct
+
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }  
+
+            return $return
+
             }
-        
-        $Account = $var
-
-        return $Account
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any accounts." -ForegroundColor Red
-        }
+        Catch {
+            Write-Host "Failed to retreive any accounts." -ForegroundColor Red
+            }
 
     }
+    END {
+        Write-Verbose "End: $($command)"
+    }    
+}
 
 
 
@@ -1463,38 +1706,77 @@ Function Get-MDUser {
         [Parameter(Position=0)]
         [string]
         $Username,
-        $Account,
-        $AccountID,
-        $ID,
-        $DisplayName
+        [Parameter(ValueFromPipeline=$true)]
+        [object]
+        $InputObject
         )
 
-    Try {
+    BEGIN {
 
+        # Set HTML config module
+        $zone = "Administration"
+        $subZone = ""
+        $construct = "Users"
+        $command = "Get-MDUser"
+
+        # Set variable and return
         $var = @()
-      
-        $Accounts = Get-MDAccount | Select-Object  -ExpandProperty id
+        $return = @()
 
-        #User Lookup
-        foreach ($a in $accounts) {
-            $API = "/api/accounts/$a/users"
-            $obj = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-            ConvertFrom-Json | Select-Object   -ExpandProperty user* 
-            $var += $obj
-            }
-        
-        #User flag lookup
-        $var = Check-Flags -var $var -Username $Username -ID $ID -AccountID $AccountID -DisplayName $DisplayName -Account $Account
-    
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Administration.Users')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any users." -ForegroundColor Red
-        }
+        Write-Verbose "Start: $($command)"
+        Write-Verbose "Getting pipeline count"
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
     }
+
+    PROCESS {
+        Try {
+            
+            #User Lookup
+            if ($InputObject){
+                $a = $InputObject.Id
+                $API = "/api/accounts/$a/users"
+                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            }else{
+                Write-Verbose "Getting all account ids"
+                $accounts = Get-MDAccount | Select-Object -ExpandProperty id
+                foreach ($a in $accounts) {
+                    $API = "/api/accounts/$a/users"
+                    $obj = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header -ErrorVariable err | ConvertFrom-Json | Select-Object -ExpandProperty $construct
+                    $var += $obj
+                    $PipelineConstruct = "usersOnly"
+                    }
+            }
+
+            # User flag lookup
+
+            $var = Check-Flags -var $var -Username $Username -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }  
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any users." -ForegroundColor Red
+            $err
+            }
+        }
+    END {
+        Write-Verbose "End: $($command)"
+    }
+}
