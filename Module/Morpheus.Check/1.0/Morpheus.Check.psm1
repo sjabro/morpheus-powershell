@@ -91,6 +91,31 @@
                     }          
                 }             
             }
+            zones {
+                switch ($construct){
+                    default {
+                        $var = $var | Where-Object { $_.zone.id -Like $InputObject.id }
+                    }   
+                }
+            }
+            clusters {
+                switch ($construct){
+                    servers {
+                        $return = @()
+                        foreach ($item in $InputObject.Servers){
+                            foreach ($obj in $var){
+                                if ($obj.id -like $item.id){
+                                    $return += $obj
+                                }
+                            }
+                        }
+                        $var = $return
+                    }
+                    default {
+                        $var = $var | Where-Object { $_.groups.id -Like $InputObject.id }
+                    }   
+                }
+            }
         }
     }
 
