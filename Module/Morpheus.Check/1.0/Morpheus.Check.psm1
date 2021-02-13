@@ -62,7 +62,7 @@
     #Write-Host "Pipeline Construct: $($PipelineConstruct)" -ForegroundColor DarkMagenta
     #Write-Host $var  -ForegroundColor DarkMagenta
 
-    if ($PipelineConstruct){
+    if ($PipelineConstruct -ne $Construct){
         #Write-Host "Found pipeline construct: $($PipelineConstruct)"  -ForegroundColor DarkMagenta
         # This switch checks for the initial command in the pipeline          
         switch ($PipelineConstruct){
@@ -83,6 +83,9 @@
             }
             groups {
                 switch ($construct){
+                    clusters {
+                        $var = $var | Where-Object { $_.site.id -like $InputObject.id }
+                    }
                     instances {
                         $var = $var | Where-Object { $_.group.id -Like $InputObject.id }
                     }
@@ -91,8 +94,22 @@
                     }          
                 }             
             }
-            zones {
+            clouds {
                 switch ($construct){
+                    groups {
+                        $return = @()
+                        foreach ($item in $InputObject.groups){
+                            foreach ($obj in $var){
+                                if ($obj.id -like $item.id){
+                                    $return += $obj
+                                }
+                            }
+                        }
+                        $var = $return
+                    }
+                    instances {
+                        $var = $var | Where-Object { $_.cloud.id -Like $InputObject.id }
+                    }
                     default {
                         $var = $var | Where-Object { $_.zone.id -Like $InputObject.id }
                     }   
@@ -116,7 +133,55 @@
                     }   
                 }
             }
+            networks {
+                switch ($construct){
+                    networkpools {
+                        $return = @()
+                        foreach ($item in $InputObject.pool){
+                            foreach ($obj in $var){
+                                if ($obj.id -like $item.id){
+                                    $return += $obj
+                                }
+                            }
+                        }
+                        $var = $return
+                    }
+                    networkdomains {
+                        $return = @()
+                        foreach ($item in $InputObject.networkDomain){
+                            foreach ($obj in $var){
+                                if ($obj.id -like $item.id){
+                                    $return += $obj
+                                }
+                            }
+                        }
+                        $var = $return
+                    }
+                    default {
+                        $var = $var | Where-Object { $_.groups.id -Like $InputObject.id }
+                    }   
+                }
+            }
+            instances {
+                switch ($construct){
+                    networks {
+                        foreach ($item in $InputObject.interfaces){
+                            foreach ($obj in $var){
+                                if ($obj.id -like $item.network.id){
+                                    $return += $obj
+                                }
+                            }
+                        }
+                        $var = $return
+                    }
+                    default {
+                        $var = $var | where id -Like $InputObject.id
+                    }          
+                }
+            }
         }
+    }else{
+        #Write-Host "Pipeline: $($PipelineConstruct) is the same as Construct:$($Construct)" -ForegroundColor DarkMagenta
     }
 
     If ($Username) {
@@ -265,6 +330,34 @@ function Get-PipelineConstruct {
     return $PipelineConstruct
 }
 
+# function Set-VarToInputObject {
+#     [CmdletBinding()]
+#     param (
+#         [Parameter(Mandatory=$true)]
+#         [Object]
+#         $InputObject,
+#         [Parameter(Mandatory=$true)]
+#         [string]
+#         $InputObjectPath,
+#         $var
+#     )
+#     #Write-Host "Input Object: $($InputObject.Servers)"
+#     #Write-Host "Input Object Path: $($InputObjectPath)"
+#     #Write-Host "$($InputObject.Servers)" -ForegroundColor DarkRed
+#     #Write-Host "var: $($var)"
+#     $return = @()
+#     foreach ($item in $InputObject.$InputObjectPath){
+#         foreach ($obj in $var){
+#             if ($obj.id -like $item.id){
+#                 $return += $obj
+#             }
+#         }
+#     }
+#     return = $return
+# }
+
+# Export-ModuleMember -Function Set-VarToInputObject
+# Export-ModuleMember -Variable return
 Export-ModuleMember -Function Get-PipelineConstruct
 Export-ModuleMember -Variable PipelineConstruct
 Export-ModuleMember -Variable Var
