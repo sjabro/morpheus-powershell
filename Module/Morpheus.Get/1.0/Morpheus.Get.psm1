@@ -59,7 +59,7 @@ Function Get-MDBilling {
         ConvertFrom-Json | Select-Object  -ExpandProperty bill* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -InputObject $InputObject
+        $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -108,7 +108,7 @@ Function Get-MDHistory {
         ConvertFrom-Json | Select-Object  -ExpandProperty process* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -InstanceID $InstanceID -ServerID $ServerID
+        $var = Compare-Flags -var $var -InstanceID $InstanceID -ServerID $ServerID
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -248,7 +248,7 @@ Function Get-MDInstance {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -359,7 +359,7 @@ Function Get-MDServer {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -451,7 +451,7 @@ Function Get-MDApp {
             ConvertFrom-Json | Select-Object  -ExpandProperty app* 
 
             #User flag lookup
-            $var = Check-Flags -var $var -Name $Name -ID $ID -Type $Type -Group $Group -GroupId $GroupId
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -Type $Type -Group $Group -GroupId $GroupId
 
             #Give this object a unique typename
             Foreach ($Object in $var) {
@@ -509,7 +509,7 @@ Function Get-MDBlueprint {
         ConvertFrom-Json | Select-Object  -ExpandProperty blueprints 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Category $Category -Type $Type
+        $var = Compare-Flags -var $var -Name $Name -ID $ID -Category $Category -Type $Type
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -596,7 +596,7 @@ Function Get-MDTask {
                         ConvertFrom-Json | Select-Object  -ExpandProperty task* 
 
                         #User flag lookup
-                        $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
+                        $var = Compare-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
                         
                         #Give this object a unique typename
                         Foreach ($Object in $var) {
@@ -612,7 +612,7 @@ Function Get-MDTask {
                     ConvertFrom-Json | Select-Object  -ExpandProperty task* 
 
                     #User flag lookup
-                    $var = Check-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
+                    $var = Compare-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
 
                     #Give this object a unique typename
                     Foreach ($Object in $var) {
@@ -667,7 +667,7 @@ Function Get-MDWorkflow {
         ConvertFrom-Json | Select-Object   -ExpandProperty task* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Type $Type -Task $Task
+        $var = Compare-Flags -var $var -Name $Name -ID $ID -Type $Type -Task $Task
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -723,7 +723,7 @@ Function Get-MDPowerSchedule {
         ConvertFrom-Json | Select-Object  -ExpandProperty schedule* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled
+        $var = Compare-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -792,7 +792,7 @@ Function Get-MDTaskType {
         ConvertFrom-Json | Select-Object  -ExpandProperty task* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID
+        $var = Compare-Flags -var $var -Name $Name -ID $ID
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -854,7 +854,7 @@ Function Get-MDVirtualImage {
         ConvertFrom-Json | Select-Object   -ExpandProperty virtualImage* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -ImageType $ImageType -Uploaded $Uploaded
+        $var = Compare-Flags -var $var -Name $Name -ID $ID -ImageType $ImageType -Uploaded $Uploaded
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -975,7 +975,7 @@ Function Get-MDGroup {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1101,7 +1101,7 @@ Function Get-MDCloud {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1221,7 +1221,7 @@ Function Get-MDCluster {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1338,7 +1338,7 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1455,7 +1455,7 @@ Function Get-MDNetworkGroup {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1572,7 +1572,7 @@ Function Get-MDRouter {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1689,7 +1689,7 @@ Function Get-MDIPPool {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1806,7 +1806,7 @@ Function Get-MDDomain {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1925,7 +1925,7 @@ Function Get-MDDomain {
 #             Write-Verbose "Input Object: $($InputObject)"
 #             Write-Verbose "Construct: $($construct)"
 #             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-#             $var = Check-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+#             $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
 #             #Give this object a unique typename
 #             if ($subzone -eq ""){
@@ -1988,7 +1988,7 @@ Function Get-MDCypher {
         ConvertFrom-Json | Select-Object  -ExpandProperty cypher* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -ItemKey $ItemKey -ID $ID -NameLike $NameLike 
+        $var = Compare-Flags -var $var -ItemKey $ItemKey -ID $ID -NameLike $NameLike 
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -2074,7 +2074,7 @@ Function Get-MDAccount {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Check-Flags -var $var -Name $Name -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -2139,7 +2139,7 @@ Function Get-MDPlan {
         ConvertFrom-Json | Select-Object  -ExpandProperty servicePlan* 
         
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -ProvisionType $ProvisionType
+        $var = Compare-Flags -var $var -Name $Name -ID $ID -ProvisionType $ProvisionType
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -2174,7 +2174,7 @@ Function Get-MDPolicy {
         ConvertFrom-Json | Select-Object  -ExpandProperty policies 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled -PolicyType $PolicyType
+        $var = Compare-Flags -var $var -Name $Name -ID $ID -Enabled $Enabled -PolicyType $PolicyType
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -2206,7 +2206,7 @@ Function Get-MDRole {
         ConvertFrom-Json | Select-Object  -ExpandProperty role* 
 
         #User flag lookup
-        $var = Check-Flags -var $var -Authority $Authority -ID $ID -RoleType $RoleType
+        $var = Compare-Flags -var $var -Authority $Authority -ID $ID -RoleType $RoleType
 
         #Give this object a unique typename
         Foreach ($Object in $var) {
@@ -2276,7 +2276,7 @@ Function Get-MDUser {
 
             # User flag lookup
 
-            $var = Check-Flags -var $var -Username $Username -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            $var = Compare-Flags -var $var -Username $Username -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
 
             #Give this object a unique typename
             if ($subzone -eq ""){

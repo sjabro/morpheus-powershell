@@ -1,4 +1,4 @@
-﻿Function Check-Flags {
+﻿Function Compare-Flags {
     Param (
         $var,
         [AllowEmptyString()]$Account,
@@ -48,7 +48,7 @@
 
         )    
 
-    #Write-Host "Begin check-flags"
+    #Write-Host "Begin Compare-Flags"
     if ($PipelineConstruct -eq "usersOnly"){
         $var = $var
     }else{
@@ -310,7 +310,7 @@
         $var = $var | Where-Object type -like $Type
         }
     
-    #Write-Host "End check-flags"
+    #Write-Host "End Compare-Flags"
     return $var
 }
 
@@ -361,4 +361,4 @@ function Get-PipelineConstruct {
 Export-ModuleMember -Function Get-PipelineConstruct
 Export-ModuleMember -Variable PipelineConstruct
 Export-ModuleMember -Variable Var
-Export-ModuleMember -Function Check-Flags
+Export-ModuleMember -Function Compare-Flags
