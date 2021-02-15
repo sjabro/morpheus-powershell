@@ -15,22 +15,27 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
-							<Width>40</Width>
+							<Width>25</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Status</Label>
-							<Width>15</Width>
+							<Width>10</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Plan</Label>
-							<Width>40</Width>
+							<Width>25</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
+							<Label>Virtual Machines</Label>
+							<Width>10</Width>
+							<Alignment>Center</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
 							<Label>Cloud</Label>
-							<Width>20</Width>
+							<Width>25</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
@@ -54,6 +59,11 @@
 								<TableColumnItem>
 									<ScriptBlock>
 										$_.plan.name
+									</ScriptBlock>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.servers.Count
 									</ScriptBlock>
 								</TableColumnItem>
 								<TableColumnItem>
@@ -195,6 +205,72 @@
 									<ScriptBlock>
 										$_.appTiers.tier.name
 									</ScriptBlock>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Jobs</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>35</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Type</Label>
+							<Width>25</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Last Updated</Label>
+							<Width>25</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Last Run</Label>
+							<Width>25</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Last Result</Label>
+							<Width>25</Width>
+							<Alignment>center</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.type.name
+									</ScriptBlock>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>LastUpdated</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>LastRun</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>LastResult</PropertyName>
 								</TableColumnItem>
 							</TableColumnItems>
 						</TableRowEntry>
@@ -1248,7 +1324,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Provisioning.Automation.Tasks</TypeName>
+					<TypeName>Morpheus.Provisioning.Tasks</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
@@ -1259,12 +1335,17 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
-							<Width>30</Width>
+							<Width>35</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
-							<Label>Task Type</Label>
-							<Width>20</Width>
+							<Label>Type</Label>
+							<Width>25</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Execute Target</Label>
+							<Width>25</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 					</TableHeaders>
@@ -1282,37 +1363,8 @@
 										$_.taskType.name
 									</ScriptBlock>
 								</TableColumnItem>
-							</TableColumnItems>
-						</TableRowEntry>
-					</TableRowEntries>
-				</TableControl>
-		</View>
-		<View>
-			<Name>Default</Name>
-				<ViewSelectedBy>
-					<TypeName>Morpheus.Provisioning.Automation.Tasks.Types</TypeName>
-				</ViewSelectedBy>
-				<TableControl>
-					<TableHeaders>
-						<TableColumnHeader>
-							<Label>ID</Label>
-							<Width>5</Width>
-							<Alignment>Left</Alignment>
-						</TableColumnHeader>
-						<TableColumnHeader>
-							<Label>Name</Label>
-							<Width>30</Width>
-							<Alignment>Left</Alignment>
-						</TableColumnHeader>
-					</TableHeaders>
-					<TableRowEntries>
-						<TableRowEntry>
-							<TableColumnItems>
 								<TableColumnItem>
-									<PropertyName>ID</PropertyName>
-								</TableColumnItem>
-								<TableColumnItem>
-									<PropertyName>Name</PropertyName>
+									<PropertyName>executeTarget</PropertyName>
 								</TableColumnItem>
 							</TableColumnItems>
 						</TableRowEntry>
@@ -1420,7 +1472,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Provisioning.Automation.Workflow</TypeName>
+					<TypeName>Morpheus.Provisioning.Task-Sets</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>

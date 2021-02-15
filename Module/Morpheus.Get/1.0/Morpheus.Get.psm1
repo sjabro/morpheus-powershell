@@ -412,60 +412,84 @@ Function Get-MDApp {
     #>
     [cmdletbinding()]
     Param (
-        # Name of the app
+        # Name of the object
         [Parameter(Position=0)]
         [string]
         $Name,
-        [Parameter()]
-        [int]
-        $ID,
-        [Parameter()]
-        [string]
-        $Type,
-        [Parameter()]
-        [string]
-        $Group,
-        [Parameter()]
-        [int]
-        $GroupId,
         # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
-        [object]
+        [System.Object]
         $InputObject
         )
 
-    process {
+    BEGIN {
 
-        # Set parameters for flag check via pipeline
-        $Group = $InputObject.name
-        $GroupID = $InputObject.Id
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = ""
+        $construct = "Apps"
+
+        # Initialize var and return
+        $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
+
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+    }
+
+    PROCESS {
 
         Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
 
-            $API = '/api/apps/'
-            $var = @()
-            
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-            ConvertFrom-Json | Select-Object  -ExpandProperty app* 
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
 
             #User flag lookup
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -Type $Type -Group $Group -GroupId $GroupId
-
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
             #Give this object a unique typename
-            Foreach ($Object in $var) {
-                $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Apps')
-                }
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }           
 
-            return $var
-
+            return $return
             }
         Catch {
-            Write-Host "Failed to retreive any apps." -ForegroundColor Red
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
             }
         }
-    }                                                                                 
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}                                                                              
 
 Function Get-MDBlueprint {
     <#
@@ -489,40 +513,191 @@ Function Get-MDBlueprint {
     #>
     [cmdletbinding()]
     Param (
-        # Name of the blueprint
+        # Name of the object
         [Parameter(Position=0)]
         [string]
         $Name,
+        [Parameter()]
+        [string]
         $ID,
-        $Category,
-        $Type
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [System.Object]
+        $InputObject
         )
 
-    Try {
+    BEGIN {
 
-        $API = '/api/blueprints/'
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = ""
+        $construct = "Blueprints"
+
+        # Initialize var and return
         $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
 
-        #API lookup
-        Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-        ConvertFrom-Json | Select-Object  -ExpandProperty blueprints 
-
-        #User flag lookup
-        $var = Compare-Flags -var $var -Name $Name -ID $ID -Category $Category -Type $Type
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.BluePrints')
-            }
-
-        return $var
-
-        }
-    Catch {
-        Write-Host "Failed to retreive any blueprints." -ForegroundColor Red
-        }
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
     }
+
+    PROCESS {
+
+        Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
+
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
+
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }           
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
+            }
+        }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}
+
+Function Get-MDJob {
+    <#
+    .Synopsis
+       Get all blueprints from Morpheus appliance
+    .DESCRIPTION
+       Gets all blueprints based on the switch selection of Name, ID, Category or Type. 
+       Name can be used from position 0 without the switch to get a specific blueprint by name.
+    .EXAMPLE
+        Get-MDBlueprint -Name bp1
+        
+        This will return the data for an app named "bp1"
+    .EXAMPLE
+        Get-MDBlueprint bp1
+
+        This will return the data for an app named "bp1"
+    .EXAMPLE
+        Get-MDBlueprint -Category "morpheus"
+
+        This will return all blueprints of the category "morpheus"
+    #>
+    [cmdletbinding()]
+    Param (
+        # Name of the object
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        [Parameter()]
+        [string]
+        $ID,
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [System.Object]
+        $InputObject
+        )
+
+    BEGIN {
+
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = ""
+        $construct = "Jobs"
+
+        # Initialize var and return
+        $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
+
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+    }
+
+    PROCESS {
+
+        Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
+
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
+
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }           
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
+            }
+        }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}  
 
 # AUTOMATION
 
@@ -565,63 +740,87 @@ Function Get-MDTask {
     #>
     [cmdletbinding()]
     Param (
-        # Name of the Task
+        # Name of the object
         [Parameter(Position=0)]
         [string]
         $Name,
+        [Parameter()]
+        [string]
         $ID,
-        $TaskType,
         # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
-        [object]
+        [System.Object]
         $InputObject
         )
 
-        process {
+    BEGIN {
 
-        # Set parameters for flag check via pipeline
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = ""
+        $construct = "Tasks"
 
-                $API = '/api/tasks/'
-                $return = @()
-                $var = @()
-                $count = 0
-                $itemCount = ($InputObject.tasks).count
-                if ($InputObject){
-                    foreach ($task in $InputObject.tasks){
-                        $ID = $task
-                        $count = $count + 1
-                        Write-Progress -Activity "Collecting..." -Status 'Progress->' -PercentComplete ($count/$itemCount*100)
-                        #API lookup
-                        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-                        ConvertFrom-Json | Select-Object  -ExpandProperty task* 
+        # Initialize var and return
+        $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
 
-                        #User flag lookup
-                        $var = Compare-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
-                        
-                        #Give this object a unique typename
-                        Foreach ($Object in $var) {
-                            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
-                            $return += $Object
-                            }
-                        }
-                    return $return
-                }else{
-                    #API lookup
-                    Write-Progress -Activity "Collecting" -Status 'In Progress...'
-                    $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-                    ConvertFrom-Json | Select-Object  -ExpandProperty task* 
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+    }
 
-                    #User flag lookup
-                    $var = Compare-Flags -var $var -Name $Name -ID $ID -TaskType $TaskType
+    PROCESS {
 
-                    #Give this object a unique typename
-                    Foreach ($Object in $var) {
-                        $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Tasks')
-                        }
+        Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
+
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
+
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
                     }
-                return $var
-                }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }           
+
+            return $return
             }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
+            }
+        }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}  
 
 Function Get-MDWorkflow {
     <#
@@ -647,41 +846,141 @@ Function Get-MDWorkflow {
     #>
     [cmdletbinding()]
     Param (
-        # Name of the Workflow
+        # Name of the object
         [Parameter(Position=0)]
         [string]
         $Name,
+        [Parameter()]
+        [string]
         $ID,
-        $Type,
-        $Task
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [System.Object]
+        $InputObject
         )
-    
-    Try {
-    
-        $API = '/api/task-sets/'
+
+    BEGIN {
+
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = ""
+        $construct = "Task-Sets"
+
+        # Initialize var and return
         $var = @()
+        $return = @()
+        $command = (("Get-MD$($construct -replace '[-]','')") -replace ".$")
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
 
-        #User Lookup
-        Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-        ConvertFrom-Json | Select-Object   -ExpandProperty task* 
+        # Setting Pipeline Data
+        # Write-Verbose "Getting PSCallStack"
+        # $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        # Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        # Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        # $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        # Set PipelineContruct manually due to naming differences
+        $PipelineConstruct = $construct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+    }
 
-        #User flag lookup
-        $var = Compare-Flags -var $var -Name $Name -ID $ID -Type $Type -Task $Task
+    PROCESS {
 
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Workflow')
+        Try {
+            if ($subZone -eq ""){
+                $API = "/api/$($construct.ToLower())"
+                Write-Verbose "API Endpoint set to $($API)"
+                $InputConstruct = ($construct -replace '[-]',"" )
+                Write-Verbose "Input Construct: $($InputConstruct)"
+                # Manually set due to naming. Workflows vs task-sets
+                # $InputConstruct = $construct
+            }else{
+                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
+                Write-Verbose "API Endpoint set to $($API)"
+                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                Write-Verbose "Input Construct: $($InputConstruct)"
             }
 
-        return $var
+            $var = @()    
 
-        }
-    Catch {
-        Write-Host "Failed to retreive any workflows." -ForegroundColor Red
-        }
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
 
-    }  
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Var: $($var)"
+            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
+            Write-Verbose "Var: $($var)"
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }             
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
+            }
+        }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+} 
+    # [cmdletbinding()]
+    # Param (
+    #     # Name of the Workflow
+    #     [Parameter(Position=0)]
+    #     [string]
+    #     $Name,
+    #     $ID,
+    #     $Type,
+    #     $Task
+    #     )
+    
+    # Try {
+    
+    #     $API = '/api/task-sets/'
+    #     $var = @()
+
+    #     #User Lookup
+    #     Write-Progress -Activity "Collecting" -Status 'In Progress...'
+    #     $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+    #     ConvertFrom-Json | Select-Object   -ExpandProperty task* 
+
+    #     #User flag lookup
+    #     $var = Compare-Flags -var $var -Name $Name -ID $ID -Type $Type -Task $Task
+
+    #     #Give this object a unique typename
+    #     Foreach ($Object in $var) {
+    #         $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.Automation.Workflow')
+    #         }
+
+    #     return $var
+
+    #     }
+    # Catch {
+    #     Write-Host "Failed to retreive any workflows." -ForegroundColor Red
+    #     }
+
+    # }  
     
 Function Get-MDPowerSchedule {
     <#
