@@ -1204,42 +1204,93 @@ Function Get-MDVirtualImage {
         This will return all Power Schedules that are enabled
 
     #>
+    [cmdletbinding()]
     Param (
-        # Name of the Virtual Image
+        # Name of the object
         [Parameter(Position=0)]
         [string]
         $Name,
+        [Parameter()]
+        [string]
         $ID,
-        $ImageType,
-        $Uploaded
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [System.Object]
+        $InputObject
         )
 
-    Try {
+    BEGIN {
 
-        $API = '/api/virtual-images/'
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = ""
+        $construct = "Virtual-Images"
+
+        # Initialize var and return
         $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
 
-        #User Lookup
-        Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
-        ConvertFrom-Json | Select-Object   -ExpandProperty virtualImage* 
-
-        #User flag lookup
-        $var = Compare-Flags -var $var -Name $Name -ID $ID -ImageType $ImageType -Uploaded $Uploaded
-
-        #Give this object a unique typename
-        Foreach ($Object in $var) {
-            $Object.PSObject.TypeNames.Insert(0,'Morpheus.Provisioning.VirtualImages')
-            }
-
-        return $var
-
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        if ($PipelineConstruct -eq "workflows"){
+            $PipelineConstruct = "taskSets"
         }
-    Catch {
-        Write-Host "Failed to retreive any virtual images." -ForegroundColor Red
-        }
-
     }
+
+    PROCESS {
+
+        Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
+
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
+
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            #Manual construct input due to naming convention not being persistent. 
+            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct -PipelineConstruct $PipelineConstruct
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }           
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
+            }
+        }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}
 
 
 # ██ ███    ██ ███████ ██████   █████  ███████ ████████ ██████  ██    ██  ██████ ████████ ██    ██ ██████  ███████ 
