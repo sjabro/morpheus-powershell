@@ -847,22 +847,17 @@
 						</TableColumnHeader>
 						<TableColumnHeader>
 							<Label>Name</Label>
+							<Width>20</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Active</Label>
 							<Width>15</Width>
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 						<TableColumnHeader>
-							<Label>Location</Label>
+							<Label>Cloud</Label>
 							<Width>15</Width>
-							<Alignment>Left</Alignment>
-						</TableColumnHeader>
-						<TableColumnHeader>
-							<Label>Instances</Label>
-							<Width>15</Width>
-							<Alignment>Left</Alignment>
-						</TableColumnHeader>
-						<TableColumnHeader>
-							<Label>Clouds</Label>
-							<!--<AutoSize/>-->
 							<Alignment>Left</Alignment>
 						</TableColumnHeader>
 					</TableHeaders>
@@ -876,16 +871,11 @@
 									<PropertyName>Name</PropertyName>
 								</TableColumnItem>
 								<TableColumnItem>
-									<PropertyName>Location</PropertyName>
+									<PropertyName>Active</PropertyName>
 								</TableColumnItem>
 								<TableColumnItem>
 									<ScriptBlock>
-										$_.stats.instancecounts.all
-									</ScriptBlock>
-								</TableColumnItem>
-								<TableColumnItem>
-									<ScriptBlock>
-										$_.zones.name
+										$_.zone.name
 									</ScriptBlock>
 								</TableColumnItem>
 							</TableColumnItems>
@@ -1365,6 +1355,48 @@
 								</TableColumnItem>
 								<TableColumnItem>
 									<PropertyName>executeTarget</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Power-Schedules</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>35</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Type</Label>
+							<Width>25</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<ScriptBlock>
+										$_.scheduleType
+									</ScriptBlock>
 								</TableColumnItem>
 							</TableColumnItems>
 						</TableRowEntry>

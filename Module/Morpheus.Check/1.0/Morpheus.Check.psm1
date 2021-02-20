@@ -50,14 +50,14 @@
 
     #Write-Host "BEGIN: Compare-Flags" -ForegroundColor DarkGreen
     #Write-Host "Var: $($var)" -ForegroundColor DarkMagenta
-    
+    if ($Construct.Contains("-")){
+        #Write-Host "Found a dash. Killing it!"
+        $Construct = $Construct -replace '[-]'
+        #Write-Host "New construct: $($Construct)"
+    }
+
     $var = $var.$construct
 
-    # if ($PipelineConstruct -eq "workflows"){
-    #     $var = $var.taskSets
-    # }else{
-    #     $var = $var.$construct
-    # }
 
     $return =@()
 
@@ -227,9 +227,9 @@
                         }
                         $var = $return
                     }
-                    default {
-                        $var = $var | Where-Object { $_.zone.id -Like $InputObject.id }
-                    }   
+                    # default {
+                    #     $var = $var | Where-Object { $_.zone.id -Like $InputObject.id }
+                    # }   
                 }
             }
         }
