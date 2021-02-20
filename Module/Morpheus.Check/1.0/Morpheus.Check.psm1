@@ -232,6 +232,13 @@
                     # }   
                 }
             }
+            instanceTypes {
+                switch ($construct){
+                    default {
+                        $var = $var | Where-Object { $_.instanceType.id -Like $InputObject.id }
+                    }   
+                }
+            }
         }
     }else{
         #Write-Host "Pipeline: $($PipelineConstruct) is the same as Construct:$($Construct)" -ForegroundColor DarkMagenta
