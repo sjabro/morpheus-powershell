@@ -1496,6 +1496,46 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
+					<TypeName>Morpheus.Provisioning.Library.Instance-Types</TypeName>
+				</ViewSelectedBy>
+				<TableControl>
+					<TableHeaders>
+						<TableColumnHeader>
+							<Label>ID</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Name</Label>
+							<Width>35</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+						<TableColumnHeader>
+							<Label>Active</Label>
+							<Width>8</Width>
+							<Alignment>Left</Alignment>
+						</TableColumnHeader>
+					</TableHeaders>
+					<TableRowEntries>
+						<TableRowEntry>
+							<TableColumnItems>
+								<TableColumnItem>
+									<PropertyName>ID</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>Name</PropertyName>
+								</TableColumnItem>
+								<TableColumnItem>
+									<PropertyName>active</PropertyName>
+								</TableColumnItem>
+							</TableColumnItems>
+						</TableRowEntry>
+					</TableRowEntries>
+				</TableControl>
+		</View>
+		<View>
+			<Name>Default</Name>
+				<ViewSelectedBy>
 					<TypeName>Morpheus.Administration.Users</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
