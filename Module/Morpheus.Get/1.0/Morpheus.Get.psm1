@@ -777,6 +777,9 @@ Function Get-MDTask {
         Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
         $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
         Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        if ($PipelineConstruct -eq "workflows"){
+            $PipelineConstruct = "taskSets"
+        }
     }
 
     PROCESS {
@@ -795,7 +798,7 @@ Function Get-MDTask {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct.ToLower() -PipelineConstruct $PipelineConstruct
             #Give this object a unique typename
             if ($subzone -eq ""){
