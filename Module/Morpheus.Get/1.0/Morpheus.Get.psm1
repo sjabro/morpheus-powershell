@@ -1013,6 +1013,101 @@ Function Get-MDPowerSchedule {
     }
 }
 
+Function Get-MDExecuteSchedule {
+    <#
+    .Synopsis
+       Get all tasks from Morpheus appliance
+    .DESCRIPTION
+       Gets all or one task based on the switch selection of Name, ID.
+    #>
+    [cmdletbinding()]
+    Param (
+        # Name of the object
+        [Parameter(Position=0)]
+        [string]
+        $Name,
+        [Parameter()]
+        [string]
+        $ID,
+        # Input Object from the pipeline
+        [Parameter(ValueFromPipeline=$true)]
+        [System.Object]
+        $InputObject
+        )
+
+    BEGIN {
+
+        # Set HTML config module
+        $zone = "Provisioning"
+        $subZone = ""
+        $construct = "Execute-Schedules"
+
+        # Initialize var and return
+        $var = @()
+        $return = @()
+        $command = ("Get-MD$($construct)") -replace ".$"
+    
+        Write-Verbose "START: $($command)"
+        Write-Verbose "Zone: $($zone)"
+        Write-Verbose "Sub-Zone: $($subZone)"
+        Write-Verbose "Construct: $($construct)"
+
+        # Setting Pipeline Data
+        Write-Verbose "Getting PSCallStack"
+        $PipelineConstruct = (Get-PSCallStack).InvocationInfo[1].MyCommand.Definition
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        Write-Verbose "Calling Get-PipelineConstruct cmdlet to set pipelineconstruct"
+        $PipelineConstruct = Get-PipelineConstruct $PipelineConstruct.ToLower()
+        Write-Verbose "Pipeline Construct is: $($pipelineconstruct)"
+        if ($PipelineConstruct -eq "workflows"){
+            $PipelineConstruct = "taskSets"
+        }
+    }
+
+    PROCESS {
+
+        Try {
+            $API = "/api/$($construct.ToLower())/"
+            $var = @()    
+
+            #API lookup
+            Write-Progress -Activity "Collecting" -Status 'In Progress...'
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            Write-Verbose "var pre flag check:"
+            Write-Verbose $var
+
+            #User flag lookup
+            Write-Verbose "Attempting flag check with the following options" 
+            Write-Verbose "Input Object: $($InputObject)"
+            Write-Verbose "Construct: $($construct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            #Manual construct input due to naming convention not being persistent. 
+            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct "schedules" -PipelineConstruct $PipelineConstruct
+            #Give this object a unique typename
+            if ($subzone -eq ""){
+                Foreach ($Object in $var) {
+                    $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($construct)")
+                    $return += $Object
+                    }
+                }else{
+                    Foreach ($Object in $var) {
+                        $Object.PSObject.TypeNames.Insert(0,"Morpheus.$($zone).$($subZone).$($construct)")
+                        $return += $Object
+                        }                  
+                }           
+
+            return $return
+            }
+        Catch {
+            Write-Host "Failed to retreive any $($construct)." -ForegroundColor Red
+            Write-Host $err
+            }
+        }
+    END {
+        Write-Verbose "END: $($command)"
+    }
+}
+
 Function Get-MDTaskType {
     <#
     .Synopsis
@@ -2116,24 +2211,7 @@ Function Get-MDSecurityGroup {
     .Synopsis
         Get all network groups from Morpheus appliance
     .DESCRIPTION
-        Gets all or one network groups based on the switch selection of Name, ID
-        Name can be used from position 0 without the switch to get a specific network group by name.
-        Can accept pipeline input from the Get-MDAccount function
-    
-    .EXAMPLE
-        Get-MDNetworkGroup
-        
-        This will return the data for all network groups
-    .EXAMPLE
-        Get-MDNetworkGroup networkgroup1
-        
-        This will return the data for a network group named "networkgroup1"
-    
-    .EXAMPLE
-    Get-MDAccount "account1" | Get-MDNetworkGroup
-    
-    This will get the object of the tenant "tenant1" and pipe that object to Get-MDNetworkGroup. This will return all network groups for the tenant.
-    
+        Gets all or one security group
     #>
 
     [cmdletbinding()]
