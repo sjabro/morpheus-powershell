@@ -104,7 +104,7 @@ Function Get-MDHistory {
 
         #API lookup
         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty process* 
 
         #User flag lookup
@@ -228,16 +228,38 @@ Function Get-MDInstance {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -247,8 +269,14 @@ Function Get-MDInstance {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
-            
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -344,12 +372,39 @@ Function Get-MDServer {
     PROCESS {
 
         Try {
-            $API = "/api/$($construct.ToLower())/"
+            if ($subZone -eq ""){
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }else{
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }
+
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -359,7 +414,14 @@ Function Get-MDServer {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -451,12 +513,39 @@ Function Get-MDApp {
     PROCESS {
 
         Try {
-            $API = "/api/$($construct.ToLower())/"
+            if ($subZone -eq ""){
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }else{
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }
+
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -466,7 +555,14 @@ Function Get-MDApp {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -556,12 +652,39 @@ Function Get-MDBlueprint {
     PROCESS {
 
         Try {
-            $API = "/api/$($construct.ToLower())/"
+            if ($subZone -eq ""){
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }else{
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }
+
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -571,7 +694,14 @@ Function Get-MDBlueprint {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -661,12 +791,39 @@ Function Get-MDJob {
     PROCESS {
 
         Try {
-            $API = "/api/$($construct.ToLower())/"
+            if ($subZone -eq ""){
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }else{
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }
+
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -676,7 +833,14 @@ Function Get-MDJob {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -758,12 +922,39 @@ Function Get-MDTask {
     PROCESS {
 
         Try {
-            $API = "/api/$($construct.ToLower())/"
+            if ($subZone -eq ""){
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }else{
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }
+
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -773,7 +964,14 @@ Function Get-MDTask {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -868,24 +1066,38 @@ Function Get-MDWorkflow {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())"
-                Write-Verbose "API Endpoint set to $($API)"
-                $InputConstruct = ($construct -replace '[-]',"" )
-                Write-Verbose "Input Construct: $($InputConstruct)"
-                # Manually set due to naming. Workflows vs task-sets
-                # $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                Write-Verbose "API Endpoint set to $($API)"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
-                Write-Verbose "Input Construct: $($InputConstruct)"
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -896,8 +1108,16 @@ Function Get-MDWorkflow {
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
             Write-Verbose "Var: $($var)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+
             Write-Verbose "Var: $($var)"
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -977,12 +1197,39 @@ Function Get-MDPowerSchedule {
     PROCESS {
 
         Try {
-            $API = "/api/$($construct.ToLower())/"
+            if ($subZone -eq ""){
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }else{
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }
+
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -992,8 +1239,14 @@ Function Get-MDPowerSchedule {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            #Manual construct input due to naming convention not being persistent. 
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -1073,12 +1326,38 @@ Function Get-MDExecuteSchedule {
     PROCESS {
 
         Try {
-            $API = "/api/$($construct.ToLower())/"
+            if ($subZone -eq ""){
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }else{
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -1088,8 +1367,14 @@ Function Get-MDExecuteSchedule {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            #Manual construct input due to naming convention not being persistent. 
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -1166,7 +1451,7 @@ Function Get-MDExecuteSchedule {
 
 #         #API lookup
 #         Write-Progress -Activity "Collecting" -Status 'In Progress...'
-#         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+#         $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
 #         ConvertFrom-Json | Select-Object  -ExpandProperty task* 
 
 #         #User flag lookup
@@ -1258,12 +1543,39 @@ Function Get-MDVirtualImage {
     PROCESS {
 
         Try {
-            $API = "/api/$($construct.ToLower())/"
+            if ($subZone -eq ""){
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }else{
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
+            }
+
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -1273,8 +1585,14 @@ Function Get-MDVirtualImage {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            #Manual construct input due to naming convention not being persistent. 
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -1355,18 +1673,38 @@ Function Get-MDInstanceType {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -1376,8 +1714,14 @@ Function Get-MDInstanceType {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            #Manual construct input due to naming convention not being persistent. 
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -1458,18 +1802,38 @@ Function Get-MDLayout {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -1479,9 +1843,14 @@ Function Get-MDLayout {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            #Manual construct input due to naming convention not being persistent. 
-            $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
-            # $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $construct -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
+            
             #Give this object a unique typename
             if ($subzone -eq ""){
                 Foreach ($Object in $var) {
@@ -1592,18 +1961,38 @@ Function Get-MDGroup {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -1613,7 +2002,13 @@ Function Get-MDGroup {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1719,18 +2114,38 @@ Function Get-MDCloud {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -1740,7 +2155,13 @@ Function Get-MDCloud {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1840,18 +2261,38 @@ Function Get-MDCluster {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -1861,7 +2302,13 @@ Function Get-MDCluster {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -1958,18 +2405,38 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -1979,7 +2446,13 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -2076,18 +2549,38 @@ Function Get-MDNetworkGroup {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -2097,7 +2590,13 @@ Function Get-MDNetworkGroup {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -2194,18 +2693,38 @@ Function Get-MDRouter {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -2215,7 +2734,13 @@ Function Get-MDRouter {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -2312,18 +2837,38 @@ Function Get-MDIPPool {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -2333,7 +2878,13 @@ Function Get-MDIPPool {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -2430,18 +2981,38 @@ Function Get-MDDomain {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())/"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -2451,7 +3022,13 @@ Function Get-MDDomain {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -2533,18 +3110,38 @@ Function Get-MDSecurityGroup {
 
         Try {
             if ($subZone -eq ""){
-                $API = "/api/$($construct.ToLower())"
-                $InputConstruct = $construct
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }else{
-                $API = "/api/$($subZone.ToLower())/$($construct.ToLower())"
-                $InputConstruct = ( ($subZone -replace ".$") + $construct)
+                If ($Name){
+                    Write-Verbose "Name Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?name=$($Name)"
+                    Write-Verbose "API set to: $($API)"
+                }elseif ($ID) {
+                    Write-Verbose "ID Specified. Setting API"
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())/$($ID)"
+                    Write-Verbose "API set to: $($API)"
+                }else {
+                    $API = "/api/$($subZone.ToLower())/$($construct.ToLower())?max=10000"
+                    Write-Verbose "API set to: $($API)"
+                }
             }
 
             $var = @()    
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
@@ -2554,7 +3151,13 @@ Function Get-MDSecurityGroup {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            $var = Compare-Flags -var $var -Name $Name -ID $ID -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            if ($Name){
+                $var = $var.$construct
+            }elseif ($ID) {
+                $var = $var.(($construct) -replace ".$")
+            }else{
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+            }
             
             #Give this object a unique typename
             if ($subzone -eq ""){
@@ -2613,7 +3216,7 @@ Function Get-MDCypher {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty cypher* 
 
         #User flag lookup
@@ -2694,7 +3297,7 @@ Function Get-MDAccount {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header  -ErrorVariable err | ConvertFrom-Json
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -2740,7 +3343,7 @@ Function Get-MDBuild {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json
 
     return $var
@@ -2764,7 +3367,7 @@ Function Get-MDPlan {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty servicePlan* 
         
         #User flag lookup
@@ -2799,7 +3402,7 @@ Function Get-MDPolicy {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty policies 
 
         #User flag lookup
@@ -2831,7 +3434,7 @@ Function Get-MDRole {
         $var = @()
 
         #API lookup
-        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header |
+        $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header |
         ConvertFrom-Json | Select-Object  -ExpandProperty role* 
 
         #User flag lookup
@@ -2891,13 +3494,13 @@ Function Get-MDUser {
             if ($InputObject){
                 $a = $InputObject.Id
                 $API = "/api/accounts/$a/users"
-                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header -ErrorVariable err | ConvertFrom-Json
+                $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
             }else{
                 Write-Verbose "Getting all account ids"
                 $accounts = Get-MDAccount | Select-Object -ExpandProperty id
                 foreach ($a in $accounts) {
                     $API = "/api/accounts/$a/users"
-                    $obj = Invoke-WebRequest -Method GET -Uri ($URL + $API + "?max=10000") -Headers $Header -ErrorVariable err | ConvertFrom-Json | Select-Object -ExpandProperty $construct
+                    $obj = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json | Select-Object -ExpandProperty $construct
                     $var += $obj
                     $PipelineConstruct = "usersOnly"
                     }
