@@ -259,8 +259,8 @@ Function Get-MDInstance {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -268,13 +268,19 @@ Function Get-MDInstance {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
 
             #Give this object a unique typename
@@ -337,6 +343,9 @@ Function Get-MDServer {
         [Parameter(Position=0)]
         [string]
         $Name,
+        [Parameter()]
+        [string]
+        $ID,
         # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
         [System.Object]
@@ -347,7 +356,7 @@ Function Get-MDServer {
 
         # Set HTML config module
         $zone = "Provisioning"
-        $subZone = "Instances"
+        $subZone = ""
         $construct = "Servers"
 
         # Initialize var and return
@@ -404,8 +413,8 @@ Function Get-MDServer {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -413,13 +422,21 @@ Function Get-MDServer {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                #Manual return set due to bad logic. Need to return to this as too many Noteproperties returned
+                #$returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name
+                $returnConstruct = "server"
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -478,6 +495,9 @@ Function Get-MDApp {
         [Parameter(Position=0)]
         [string]
         $Name,
+        [Parameter()]
+        [string]
+        $ID,
         # Input Object from the pipeline
         [Parameter(ValueFromPipeline=$true)]
         [System.Object]
@@ -545,8 +565,8 @@ Function Get-MDApp {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -554,13 +574,19 @@ Function Get-MDApp {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -684,8 +710,8 @@ Function Get-MDBlueprint {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -693,13 +719,19 @@ Function Get-MDBlueprint {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -823,8 +855,8 @@ Function Get-MDJob {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -832,13 +864,19 @@ Function Get-MDJob {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -954,8 +992,8 @@ Function Get-MDTask {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -964,12 +1002,18 @@ Function Get-MDTask {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            if ($Name){
-                $var = $var.$construct
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -1097,8 +1141,8 @@ Function Get-MDWorkflow {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -1106,14 +1150,19 @@ Function Get-MDWorkflow {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            Write-Verbose "Var: $($var)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
 
             Write-Verbose "Var: $($var)"
@@ -1229,8 +1278,8 @@ Function Get-MDPowerSchedule {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -1239,12 +1288,20 @@ Function Get-MDPowerSchedule {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            if ($Name){
-                $var = $var.$construct
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                #Manual return set due to bad logic. Need to return to this as too many Noteproperties returned
+                #$returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name
+                $returnConstruct = "schedule"
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -1357,8 +1414,8 @@ Function Get-MDExecuteSchedule {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -1367,12 +1424,18 @@ Function Get-MDExecuteSchedule {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            if ($Name){
-                $var = $var.$construct
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -1575,8 +1638,8 @@ Function Get-MDVirtualImage {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -1585,12 +1648,18 @@ Function Get-MDVirtualImage {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            if ($Name){
-                $var = $var.$construct
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -1704,8 +1773,8 @@ Function Get-MDInstanceType {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -1714,12 +1783,18 @@ Function Get-MDInstanceType {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            if ($Name){
-                $var = $var.$construct
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -1830,11 +1905,10 @@ Function Get-MDLayout {
             }
 
             $var = @()    
-
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -1843,12 +1917,18 @@ Function Get-MDLayout {
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
             Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
-            if ($Name){
-                $var = $var.$construct
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -1992,8 +2072,8 @@ Function Get-MDGroup {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -2001,13 +2081,19 @@ Function Get-MDGroup {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -2145,8 +2231,8 @@ Function Get-MDCloud {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -2154,13 +2240,19 @@ Function Get-MDCloud {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -2292,8 +2384,8 @@ Function Get-MDCluster {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -2301,13 +2393,19 @@ Function Get-MDCluster {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -2436,8 +2534,8 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -2445,13 +2543,21 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                #Manual return set due to bad logic. Need to return to this as too many Noteproperties returned
+                #$returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name
+                $returnConstruct = "network"
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -2580,8 +2686,8 @@ Function Get-MDNetworkGroup {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -2589,13 +2695,21 @@ Function Get-MDNetworkGroup {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                #Manual return set due to bad logic. Need to return to this as too many Noteproperties returned
+                #$returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name
+                $returnConstruct = "networkGroup"
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -2721,11 +2835,10 @@ Function Get-MDRouter {
             }
 
             $var = @()    
-
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -2733,13 +2846,19 @@ Function Get-MDRouter {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -2868,8 +2987,8 @@ Function Get-MDIPPool {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -2877,13 +2996,19 @@ Function Get-MDIPPool {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -3012,8 +3137,8 @@ Function Get-MDDomain {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -3021,13 +3146,19 @@ Function Get-MDDomain {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -3141,8 +3272,8 @@ Function Get-MDSecurityGroup {
 
             #API lookup
             Write-Progress -Activity "Collecting" -Status 'In Progress...'
-            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header  -ErrorVariable err | ConvertFrom-Json
-            $returnConstruct = $var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}
+            $var = Invoke-WebRequest -Method GET -Uri ($URL + $API) -Headers $Header -ErrorVariable err | ConvertFrom-Json
+            $returnConstruct = ($var | Get-Member -MemberType NoteProperty | Where-Object {$_.Definition -like "Object*"}).Name
             Write-Verbose "var pre flag check:"
             Write-Verbose $var
 
@@ -3150,13 +3281,19 @@ Function Get-MDSecurityGroup {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
-            if ($Name){
-                $var = $var.$construct
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
+            if ($Name){               
+                Write-Verbose "Return construct: $($returnConstruct)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }elseif ($ID) {
-                $var = $var.(($construct) -replace ".$")
+                $returnConstruct = ($var | Get-Member -MemberType NoteProperty).Name 
+                Write-Verbose "Return construct: $($returnConstruct)"
+                Write-Verbose "Var: $($var)"
+                $var = $var.$returnConstruct
+                Write-Verbose "New var: $($var)"
             }else{
-                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct.Name -PipelineConstruct $PipelineConstruct
+                $var = Compare-Flags -var $var -InputObject $InputObject -Construct $returnConstruct -PipelineConstruct $PipelineConstruct
             }
             
             #Give this object a unique typename
@@ -3305,7 +3442,7 @@ Function Get-MDAccount {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             $var = Compare-Flags -var $var -Name $Name -InputObject $InputObject -Construct $InputConstruct.ToLower() -PipelineConstruct $PipelineConstruct
             
             #Give this object a unique typename

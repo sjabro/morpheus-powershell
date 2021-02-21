@@ -1246,7 +1246,7 @@
 		<View>
 			<Name>Default</Name>
 				<ViewSelectedBy>
-					<TypeName>Morpheus.Provisioning.Instances.Servers</TypeName>
+					<TypeName>Morpheus.Provisioning.Servers</TypeName>
 				</ViewSelectedBy>
 				<TableControl>
 					<TableHeaders>
