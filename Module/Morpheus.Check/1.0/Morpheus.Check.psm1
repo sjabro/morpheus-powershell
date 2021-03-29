@@ -73,6 +73,9 @@
             accounts {
                 # This switch checks for the current construct to compare against and the parse the var based on the object layout
                 switch ($construct){
+                    { ($_ -eq "invoices") } {
+                        $var = $var | Where-Object { $_.account.id -Like $InputObject.id }
+                    }
                     default {
                         $var = $var | where accountId -Like $InputObject.id
                     }
@@ -80,6 +83,23 @@
             }
             users {
                 switch ($construct){
+                    roles {
+                        $return = @()
+                        foreach ($item in $InputObject.roles){
+                            foreach ($obj in $var){
+                                if ($obj.id -like $item.id){
+                                    $return += $obj
+                                }
+                            }
+                        }
+                        $var = $return
+                    }
+                    { ($_ -eq "invoices") } {
+                        $var = $var | Where-Object { $_.user.id -Like $InputObject.id }
+                    }
+                    { ($_ -eq "instances" -or $_ -eq "apps" -or $_ -eq "blueprints" -or $_ -eq "servers") } {
+                        $var = $var | Where-Object { $_.owner.id -Like $InputObject.id }
+                    }
                     default {
                         $var = $var | where id -Like $InputObject.id
                     }          
@@ -90,7 +110,7 @@
                     clusters {
                         $var = $var | Where-Object { $_.site.id -like $InputObject.id }
                     }
-                    { ($_ -eq "instances" -or $_ -eq "apps") } {
+                    { ($_ -eq "instances" -or $_ -eq "apps" -or $_ -eq "invoices") } {
                         $var = $var | Where-Object { $_.group.id -Like $InputObject.id }
                     }
                     default {
@@ -111,7 +131,7 @@
                         }
                         $var = $return
                     }
-                    instances {
+                    { ($_ -eq "instances" -or $_ -eq "invoices") } {
                         $var = $var | Where-Object { $_.cloud.id -Like $InputObject.id }
                     }
                     default {
