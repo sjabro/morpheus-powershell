@@ -122,6 +122,9 @@
                         }
                         $var = $return
                     }
+                    datastores {
+                        $var = $var
+                    }
                     default {
                         $var = $var | Where-Object { $_.groups.id -Like $InputObject.id }
                     }   
