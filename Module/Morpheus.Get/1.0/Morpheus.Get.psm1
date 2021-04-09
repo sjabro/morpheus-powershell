@@ -662,7 +662,7 @@ Function Get-MDInstance {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -807,7 +807,7 @@ Function Get-MDApp {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -948,7 +948,7 @@ Function Get-MDBlueprint {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -1089,7 +1089,7 @@ Function Get-MDJob {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -1367,7 +1367,7 @@ Function Get-MDWorkflow {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             Write-Verbose "Var: $($var)"
             if ($Name){
                 $objName = $construct.replace("-","")
@@ -2928,7 +2928,7 @@ Function Get-MDGroup {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -3083,7 +3083,7 @@ Function Get-MDCloud {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -3232,7 +3232,7 @@ Function Get-MDCluster {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -3509,7 +3509,7 @@ This will get the object of the cloud "cloud1" and pipe that object to Get-MDNet
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -3655,7 +3655,7 @@ Function Get-MDNetworkGroup {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -3801,7 +3801,7 @@ Function Get-MDRouter {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -3947,7 +3947,7 @@ Function Get-MDIPPool {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -4093,7 +4093,7 @@ Function Get-MDDomain {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName
@@ -4224,7 +4224,7 @@ Function Get-MDSecurityGroup {
             Write-Verbose "Attempting flag check with the following options" 
             Write-Verbose "Input Object: $($InputObject)"
             Write-Verbose "Construct: $($construct)"
-            Write-Verbose "Pipeline Construct: $($PipelineConmstruct)"
+            Write-Verbose "Pipeline Construct: $($PipelineConstruct)"
             if ($Name){
                 $objName = $construct.replace("-","")
                 $var = $var.$objName

@@ -1,38 +1,8 @@
 ﻿Function Compare-Flags {
     Param (
         $var,
-        [AllowEmptyString()]$Account,
-        [AllowEmptyString()]$AccountID,
-        [AllowEmptyString()]$TenantID,
-        [AllowEmptyString()]$Active,
-        [AllowEmptyString()]$Authority,
-        [AllowEmptyString()]$Category,
-        [AllowEmptyString()]$Cloud,
-        [AllowEmptyString()]$CloudId,
-        [AllowEmptyString()]$CloudType,
-        [AllowEmptyString()]$ClusterType,
-        [AllowEmptyString()]$ClusterId,
-        [AllowEmptyString()]$Currency,
-        [AllowEmptyString()]$DisplayName,
-        [AllowEmptyString()]$Enabled,
-        [AllowEmptyString()]$Group,
-        [AllowEmptyString()]$GroupId,
-        [AllowEmptyString()]$ID,
-        [AllowEmptyString()]$ItemKey,
-        [AllowEmptyString()]$ImageType,
-        [AllowEmptyString()]$InstanceID,
         [AllowEmptyString()]$Name,
-        [AllowEmptyString()]$PolicyType,
-        [AllowEmptyString()]$ProvisionType,
-        [AllowEmptyString()]$RoleType,
-        [AllowEmptyString()]$ServerID,
-        [AllowEmptyString()]$Task,
-        [AllowEmptyString()]$TaskType,
-        [AllowEmptyString()]$Uploaded,
         [AllowEmptyString()]$Username,
-        [AllowEmptyString()]$Zone,
-        [AllowEmptyString()]$ZoneId,
-        [AllowEmptyString()]$Type,
         #Parameter help description
         [Parameter()]
         [Object]
@@ -274,126 +244,13 @@
         $var = $var | Where-Object name -like $Name
         }
 
-    If ($Active){
-        $var = $var | where accountid -like $Active
-        }
-
-    If ($Authority){
-        $var = $var | where authority -like $Authority
-        }
-
-    If ($Category){
-        $var = $var | where category -like $Category
-        }
-
-    If ($Cloud) {
-        $var = $var | Where-Object { $_.Cloud.name -like $Cloud }
-        }
-
-    If ($CloudId) {
-        $var = $var | Where-Object { $_.Cloud.id -like $CloudId }
-        }
-
-    If ($Currency){
-        $var = $var | where currency -like $Currency
-        }
-
-    If ($Enabled){
-        $var = $var | where enabled -like $Enabled
-        }
-
-    If ($Group) {
-        $var = $var | Where-Object { $_.Group.name -like $Group }
-        }
-
-    If ($GroupId) {
-        $var = $var | Where-Object { $_.Group.id -like $GroupId }
-        }
-
-    If ($Groups) {
-        $var = $var | Where-Object { $_.groups.name -like $Groups }
-        }
-
-    If ($DisplayName){
-        $var = $var | where displayName -like $DisplayName
-        }
-
-    If ($ID) {
-        $var = $var | where id -like $ID
-        }
-
-    If ($ItemKey) {
-        $var = $var | where itemKey -like $ItemKey
-        }
-
-    If ($ImageType) {
-        $var = $var | where imageType -like $ImageType
-        }
-
-    If ($InstanceID) {
-        $var = $var | where instanceId -like $InstanceID
-        }
-
-    If ($OS) {
-        $var = $var | Where-Object { $_.serverOs.name -like $OS }
-        }
-
-    If ($PolicyType) {
-        $var = $var | Where-Object { $_.policyType.name -like $PolicyType }
-        }
-
-    If ($ProvisionType) {
-        $var = $var | Where-Object { $_.provisionType.code -like $ProvisionType }
-        }
-    
-    If ($RoleType) {
-        $var = $var | where roleType -like $RoleType
-        }
-
-    If ($ServerID) {
-        $var = $var | where serverId -like $ServerID
-        }
-
-    If ($Task) {
-        $var = $var | where tasks -like $Task
-        }
-
-    If ($TaskType) {
-        $var = $var | Where-Object { $_.taskType.name -like $TaskType }
-        }
-
-    If ($Uploaded) {
-        $var = $var | where userUploaded -like $Uploaded
-        }
-
-    If ($Zone) {
-        $var = $var | Where-Object { $_.zone.name -like $Zone }
-        }
-
-    If ($ZoneId) {
-        $var = $var | Where-Object { $_.zone.id -like $ZoneId }
-        }
-    
-    If ($CloudType) {
-        $var = $var | Where-Object { $_.zoneType.name -like $CloudType }
-        }
-
-    If ($ClusterType) {
-        $var = $var | Where-Object { $_.Type.name -like $ClusterType }
-        }
-
-    If ($ClusterId) {
-        $var = $var | where clusterId -like $ClusterId
-        }
-
-    If ($Type) {
-        $var = $var | Where-Object type -like $Type
-        }
     #Write-Host "Var: $($var)" -ForegroundColor DarkMagenta
     #Write-Host "END: Compare-Flags" -ForegroundColor DarkGreen
     return $var
 }
 
+
+# Function to parse the input from the pipeline 
 function Get-PipelineConstruct {
     [CmdletBinding()]
     param (
@@ -410,34 +267,35 @@ function Get-PipelineConstruct {
     return $PipelineConstruct
 }
 
-# function Set-VarToInputObject {
+# function Get-AttributesList {
 #     [CmdletBinding()]
 #     param (
 #         [Parameter(Mandatory=$true)]
-#         [Object]
-#         $InputObject,
-#         [Parameter(Mandatory=$true)]
 #         [string]
-#         $InputObjectPath,
-#         $var
+#         $API,
+#         [Parameter(Mandatory=$false)]
+#         [Switch]
+#         $IgnoreCommonAttributes
 #     )
-#     #Write-Host "Input Object: $($InputObject.Servers)"
-#     #Write-Host "Input Object Path: $($InputObjectPath)"
-#     #Write-Host "$($InputObject.Servers)" -ForegroundColor DarkRed
-#     #Write-Host "var: $($var)"
-#     $return = @()
-#     foreach ($item in $InputObject.$InputObjectPath){
-#         foreach ($obj in $var){
-#             if ($obj.id -like $item.id){
-#                 $return += $obj
+
+#     $commonAttributes = "id","name"
+
+#     switch ($API) {
+#         user {
+#             $attributes = "id","username","firstname","lastname"
+#             if ($IgnoreCommonAttributes -eq $true){
+#                 $attributesList = $attributes
+#             }else{
+#                 $attributesList = $commonAttributes + $attributes
 #             }
 #         }
+#         Default {}
 #     }
-#     return = $return
+#     return $attributesList
 # }
 
-# Export-ModuleMember -Function Set-VarToInputObject
-# Export-ModuleMember -Variable return
+# Export-ModuleMember -Function Get-AttributesList
+# Export-ModuleMember -Variable attributesList
 Export-ModuleMember -Function Get-PipelineConstruct
 Export-ModuleMember -Variable PipelineConstruct
 Export-ModuleMember -Variable Var
