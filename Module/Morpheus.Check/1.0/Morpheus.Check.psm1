@@ -270,6 +270,52 @@ function Get-PipelineConstruct {
     return $PipelineConstruct
 }
 
+function Get-UpdateObjectData {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [System.Object]
+        $InputObject
+    )
+
+    $params = $InputObject | Get-Member -MemberType NoteProperty
+        if ($params[0].Typename.split('.').count -eq 3){
+            Write-Verbose "$(Get-Date): Found three"
+            $construct = $params[0].Typename.split('.')[2]
+            Write-Verbose "$(Get-Date): Construct set to $($construct)"
+            if ($construct -eq "Folders" -or $construct -eq "Data-Stores" -or $construct -eq "Resource-Pools"){
+                $update_api = "/api/zones/$($InputObject.zone.id)/$($($params[0].Typename.split('.')[2]).ToLower())/$($InputObject.id)"
+                Write-Verbose "$(Get-Date): Set API to $($update_api)"
+            }elseif ($construct -eq "Datastores"){
+                $update_api = "/api/clusters/$($InputObject.id)/$($($params[0].Typename.split('.')[2]).ToLower())/$($InputObject.id)"
+                Write-Verbose "$(Get-Date): Set API to $($update_api)"
+            }else {
+                $update_api = "/api/$($($params[0].Typename.split('.')[2]).ToLower())/$($InputObject.id)"
+                Write-Verbose "$(Get-Date): Set API to $($update_api)"
+            }
+        }elseif ($params[0].Typename.split('.').count -eq 4) {
+            Write-Verbose "$(Get-Date): Found four"
+            $construct = $params[0].Typename.split('.')[4]
+            Write-Verbose "$(Get-Date): Construct set to $($construct)"
+            $update_api = "/api/$($($params[0].Typename.split('.')[2]).ToLower())/$($($params[0].Typename.split('.')[3]).ToLower())/$($InputObject.id)"
+            Write-Verbose "$(Get-Date): Set API to $($update_api)"
+        }else{
+            Write-Output "Not sure what to do. Found"
+            Write-Output $params[0].Typename.split('.').count
+        }
+
+        if ($construct.Contains("-")){
+            Write-Verbose "$(Get-Date): Found dashes in construct. Removing them..."
+            $construct = $Construct -replace '[-]'
+            Write-Verbose "$(Get-Date): Construct set to $($construct)"
+        }
+
+        $update_object = [PSCustomObject]@{
+            api = $update_api
+            construct = $construct
+        }
+    return $update_object
+}
 # function Get-AttributesList {
 #     [CmdletBinding()]
 #     param (
@@ -297,8 +343,8 @@ function Get-PipelineConstruct {
 #     return $attributesList
 # }
 
-# Export-ModuleMember -Function Get-AttributesList
-# Export-ModuleMember -Variable attributesList
+Export-ModuleMember -Function Get-UpdateObjectData
+Export-ModuleMember -Variable update_object
 Export-ModuleMember -Function Get-PipelineConstruct
 Export-ModuleMember -Variable PipelineConstruct
 Export-ModuleMember -Variable Var
